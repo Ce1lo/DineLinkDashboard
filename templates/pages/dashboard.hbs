@@ -1,0 +1,210 @@
+<!-- Dashboard / Overview Page - Tailwind UI -->
+
+<!-- Page Header -->
+<div class="mb-6">
+    <h1 class="text-2xl font-bold text-stone-900">Tổng quan</h1>
+    <p class="text-stone-500">Chào mừng trở lại! Đây là tình hình nhà hàng hôm nay.</p>
+</div>
+
+<!-- KPI Cards Grid -->
+<div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-4 mb-6">
+    <!-- Bookings Today -->
+    <div class="card kpi-card kpi-primary p-5">
+        <div class="flex items-center justify-between">
+            <div>
+                <p class="text-sm text-stone-500 mb-1">Booking hôm nay</p>
+                <p class="text-3xl font-bold text-stone-900">{{kpis.bookingsToday}}</p>
+            </div>
+            <div class="w-12 h-12 bg-primary-100 rounded-xl flex items-center justify-center">
+                <i class="fa-solid fa-calendar-check"></i>
+            </div>
+        </div>
+        <div class="mt-3 flex items-center text-sm">
+            <span class="text-green-600 flex items-center gap-1">
+                <i class="fa-solid fa-arrow-trend-up"></i>
+                +12%
+            </span>
+            <span class="text-stone-400 ml-2">so với hôm qua</span>
+        </div>
+    </div>
+    
+    <!-- Guests Today -->
+    <div class="card kpi-card kpi-success p-5">
+        <div class="flex items-center justify-between">
+            <div>
+                <p class="text-sm text-stone-500 mb-1">Khách dự kiến</p>
+                <p class="text-3xl font-bold text-stone-900">{{kpis.guestsToday}}</p>
+            </div>
+            <div class="w-12 h-12 bg-green-100 rounded-xl flex items-center justify-center">
+                <i class="fa-solid fa-users"></i>
+            </div>
+        </div>
+        <div class="mt-3 flex items-center text-sm">
+            <span class="text-green-600 flex items-center gap-1">
+                <i class="fa-solid fa-arrow-trend-up"></i>
+                +8%
+            </span>
+            <span class="text-stone-400 ml-2">so với hôm qua</span>
+        </div>
+    </div>
+    
+    <!-- Pending Bookings -->
+    <div class="card kpi-card kpi-warning p-5">
+        <div class="flex items-center justify-between">
+            <div>
+                <p class="text-sm text-stone-500 mb-1">Chờ xác nhận</p>
+                <p class="text-3xl font-bold text-stone-900">{{kpis.pendingBookings}}</p>
+            </div>
+            <div class="w-12 h-12 bg-orange-100 rounded-xl flex items-center justify-center">
+                <i class="fa-solid fa-clock"></i>
+            </div>
+        </div>
+        <div class="mt-3 text-sm text-orange-600">
+            <span class="flex items-center gap-1">
+                <i class="fa-solid fa-circle-exclamation"></i>
+                Cần xử lý
+            </span>
+        </div>
+    </div>
+    
+    <!-- Table Occupancy -->
+    <div class="card kpi-card kpi-info p-5">
+        <div class="flex items-center justify-between">
+            <div>
+                <p class="text-sm text-stone-500 mb-1">Tỉ lệ lấp đầy</p>
+                <p class="text-3xl font-bold text-stone-900">{{kpis.tableOccupancy}}%</p>
+            </div>
+            <div class="w-12 h-12 bg-blue-100 rounded-xl flex items-center justify-center">
+                <i class="fa-solid fa-circle"></i>
+            </div>
+        </div>
+        <!-- Mini progress bar -->
+        <div class="mt-3">
+            <div class="h-2 bg-stone-200 rounded-full overflow-hidden">
+                <div class="h-full bg-blue-500 rounded-full" style="width: {{kpis.tableOccupancy}}%"></div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Quick Actions -->
+<div class="flex flex-wrap gap-3 mb-6">
+    <a href="#/bookings" class="btn btn-primary" data-nav="/bookings">
+        <i class="fa-solid fa-circle"></i>
+        Xem tất cả booking
+    </a>
+    <a href="#/tables" class="btn btn-outline" data-nav="/tables">
+        <i class="fa-solid fa-table-cells"></i>
+        Quản lý bàn
+    </a>
+    <a href="#/images" class="btn btn-outline" data-nav="/images">
+        <i class="fa-solid fa-image"></i>
+        Cập nhật hình ảnh
+    </a>
+</div>
+
+<!-- Upcoming Bookings Table -->
+<div class="card">
+    <div class="flex items-center justify-between p-4 border-b border-stone-100">
+        <h3 class="font-semibold text-stone-900 flex items-center gap-2">
+            <i class="fa-regular fa-calendar"></i>
+            Booking sắp tới
+        </h3>
+        <a href="#/bookings" class="text-sm text-primary-600 hover:text-primary-700 font-medium" data-nav="/bookings">
+            Xem tất cả →
+        </a>
+    </div>
+    
+    <div class="overflow-x-auto">
+        <table class="data-table">
+            <thead>
+                <tr>
+                    <th class="w-16">Giờ</th>
+                    <th>Tên khách</th>
+                    <th class="w-20 text-center">Số người</th>
+                    <th class="w-24">Bàn</th>
+                    <th class="w-32">Trạng thái</th>
+                    <th class="w-28 text-right">Thao tác</th>
+                </tr>
+            </thead>
+            <tbody>
+                {{#each upcomingBookings}}
+                <tr class="animate-fade-in" style="animation-delay: {{@index}}00ms">
+                    <td>
+                        <span class="font-semibold text-stone-900">{{time}}</span>
+                    </td>
+                    <td>
+                        <div class="flex items-center gap-2">
+                            <div class="w-8 h-8 bg-primary-100 rounded-full flex items-center justify-center text-primary-700 font-medium text-sm flex-shrink-0">
+                                {{substring customerName 0 1}}
+                            </div>
+                            <span class="truncate">{{customerName}}</span>
+                        </div>
+                    </td>
+                    <td class="text-center">
+                        <span class="inline-flex items-center gap-1 text-stone-600">
+                            <i class="fa-solid fa-users text-xs"></i>
+                            {{guests}}
+                        </span>
+                    </td>
+                    <td>
+                        {{#if table}}
+                        <span class="inline-flex items-center px-2 py-1 bg-stone-100 rounded text-sm font-medium text-stone-700">
+                            {{table}}
+                        </span>
+                        {{else}}
+                        <span class="text-stone-400 text-sm">Chưa gán</span>
+                        {{/if}}
+                    </td>
+                    <td>
+                        {{#if (eq status 'PENDING')}}
+                        <span class="badge badge-pending whitespace-nowrap">Chờ xác nhận</span>
+                        {{else if (eq status 'CONFIRMED')}}
+                        <span class="badge badge-confirmed whitespace-nowrap">Đã xác nhận</span>
+                        {{else if (eq status 'CHECKED_IN')}}
+                        <span class="badge badge-checked-in whitespace-nowrap">Đã check-in</span>
+                        {{else if (eq status 'CANCELLED')}}
+                        <span class="badge badge-cancelled whitespace-nowrap">Đã hủy</span>
+                        {{else}}
+                        <span class="badge badge-no-show whitespace-nowrap">{{status}}</span>
+                        {{/if}}
+                    </td>
+                    <td>
+                        <div class="flex items-center gap-1">
+                            <button class="btn btn-icon btn-secondary" 
+                                    data-action="viewBooking" data-id="{{id}}" 
+                                    title="Chi tiết">
+                                <i class="fa-solid fa-eye"></i>
+                            </button>
+                            {{#if (eq status 'PENDING')}}
+                            <button class="btn btn-icon btn-success" 
+                                    data-action="confirmBooking" data-id="{{id}}"
+                                    title="Xác nhận">
+                                <i class="fa-solid fa-check"></i>
+                            </button>
+                            {{/if}}
+                            <button class="btn btn-icon btn-outline text-red-500 hover:bg-red-50" 
+                                    data-action="cancelBooking" data-id="{{id}}"
+                                    title="Huỷ">
+                                <i class="fa-solid fa-xmark"></i>
+                            </button>
+                        </div>
+                    </td>
+                </tr>
+                {{else}}
+                <tr>
+                    <td colspan="6">
+                        <div class="empty-state py-8">
+                            <i class="fa-solid fa-circle"></i>
+                            <p class="text-stone-500">Không có booking sắp tới</p>
+                            <a href="#/bookings" class="btn btn-primary mt-4" data-nav="/bookings">
+                                Xem tất cả booking
+                            </a>
+                        </div>
+                    </td>
+                </tr>
+                {{/each}}
+            </tbody>
+        </table>
+    </div>
+</div>

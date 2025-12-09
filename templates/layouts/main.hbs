@@ -1,0 +1,16 @@
+<!-- Main Dashboard Layout - Tailwind UI -->
+<div class="flex min-h-screen bg-stone-100">
+    <!-- Sidebar -->
+    {{> sidebar}}
+    
+    <!-- Main Content -->
+    <main class="main-content flex-1">
+        <!-- Top Header -->
+        {{> header}}
+        
+        <!-- Page Content -->
+        <div class="p-6">
+            {{{content}}}
+        </div>
+    </main>
+</div>

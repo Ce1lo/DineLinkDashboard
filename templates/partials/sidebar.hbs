@@ -1,0 +1,113 @@
+<!-- Sidebar Navigation - Tailwind UI with Font Awesome -->
+<!-- Mobile Overlay -->
+<div id="sidebarOverlay" class="fixed inset-0 bg-black/50 z-30 hidden lg:hidden" onclick="toggleSidebar()"></div>
+
+<aside id="sidebar" class="sidebar">
+    <!-- User Profile Section -->
+    <div class="sidebar-header">
+        <div class="flex items-center gap-3 mb-4">
+            <img src="{{#if user.avatar}}{{user.avatar}}{{else}}https://i.pravatar.cc/80?img=12{{/if}}" 
+                 alt="Avatar" 
+                 class="w-14 h-14 rounded-full object-cover border-2 border-primary-200">
+            <div class="flex-1 min-w-0">
+                <h4 class="font-semibold text-stone-900 truncate">{{user.name}}</h4>
+                <p class="text-sm text-stone-500">{{user.role}}</p>
+            </div>
+            <a href="#/profile" class="p-2 rounded-lg hover:bg-stone-100 text-stone-400 hover:text-stone-600">
+                <i class="fa-solid fa-gear"></i>
+            </a>
+        </div>
+        
+        <!-- User Stats -->
+        <div class="grid grid-cols-3 gap-0 p-3 bg-stone-50 rounded-lg">
+            <div class="text-center py-1">
+                <div class="text-lg font-bold text-stone-900">{{#if kpis.bookingsToday}}{{kpis.bookingsToday}}{{else}}0{{/if}}</div>
+                <div class="text-xs text-stone-500">Bookings</div>
+            </div>
+            <div class="text-center py-1 border-x border-stone-200">
+                <div class="text-lg font-bold text-primary-600">{{#if kpis.pendingBookings}}{{kpis.pendingBookings}}{{else}}0{{/if}}</div>
+                <div class="text-xs text-stone-500">Chờ duyệt</div>
+            </div>
+            <div class="text-center py-1">
+                <div class="text-lg font-bold text-stone-900">{{#if kpis.tableOccupancy}}{{kpis.tableOccupancy}}{{else}}0{{/if}}%</div>
+                <div class="text-xs text-stone-500">Lấp đầy</div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Navigation -->
+    <nav class="sidebar-nav">
+        <a href="#/dashboard" class="nav-item {{#if (eq currentRoute '/dashboard')}}active{{/if}}" data-nav="/dashboard">
+            <i class="fa-solid fa-gauge-high w-5"></i>
+            <span>Tổng quan</span>
+        </a>
+        
+        <div class="px-4 py-2 mt-4">
+            <span class="text-xs font-semibold text-stone-400 uppercase tracking-wider">Quản lý</span>
+        </div>
+        
+        <a href="#/bookings" class="nav-item {{#if (eq currentRoute '/bookings')}}active{{/if}}" data-nav="/bookings">
+            <i class="fa-solid fa-calendar-check w-5"></i>
+            <span>Đặt bàn</span>
+        </a>
+        
+        <a href="#/tables" class="nav-item {{#if (eq currentRoute '/tables')}}active{{/if}}" data-nav="/tables">
+            <i class="fa-solid fa-table-cells w-5"></i>
+            <span>Quản lý bàn</span>
+        </a>
+        
+        {{#if (or (eq user.role 'OWNER') (eq user.role 'MANAGER'))}}
+        <a href="#/images" class="nav-item {{#if (eq currentRoute '/images')}}active{{/if}}" data-nav="/images">
+            <i class="fa-solid fa-images w-5"></i>
+            <span>Hình ảnh & Menu</span>
+        </a>
+        {{/if}}
+        
+        {{#if (or (eq user.role 'OWNER') (eq user.role 'MANAGER'))}}
+        <a href="#/reviews" class="nav-item {{#if (eq currentRoute '/reviews')}}active{{/if}}" data-nav="/reviews">
+            <i class="fa-solid fa-star w-5"></i>
+            <span>Đánh giá</span>
+        </a>
+        {{/if}}
+        
+        <div class="px-4 py-2 mt-4">
+            <span class="text-xs font-semibold text-stone-400 uppercase tracking-wider">Hệ thống</span>
+        </div>
+        
+        <a href="#/notifications" class="nav-item {{#if (eq currentRoute '/notifications')}}active{{/if}}" data-nav="/notifications">
+            <i class="fa-solid fa-bell w-5"></i>
+            <span>Thông báo</span>
+            {{#if unreadCount}}
+            <span class="ml-auto bg-red-500 text-white text-xs font-medium px-2 py-0.5 rounded-full">{{unreadCount}}</span>
+            {{/if}}
+        </a>
+        
+        {{#if (eq user.role 'OWNER')}}
+        <a href="#/restaurant" class="nav-item {{#if (eq currentRoute '/restaurant')}}active{{/if}}" data-nav="/restaurant">
+            <i class="fa-solid fa-building w-5"></i>
+            <span>Thông tin nhà hàng</span>
+        </a>
+        {{/if}}
+        
+        {{#if (or (eq user.role 'OWNER') (eq user.role 'MANAGER'))}}
+        <a href="#/accounts" class="nav-item {{#if (eq currentRoute '/accounts')}}active{{/if}}" data-nav="/accounts">
+            <i class="fa-solid fa-users w-5"></i>
+            <span>Nhân sự</span>
+        </a>
+        {{/if}}
+        
+        <div class="px-4 py-2 mt-4">
+            <span class="text-xs font-semibold text-stone-400 uppercase tracking-wider">Tài khoản</span>
+        </div>
+        
+        <a href="#/profile" class="nav-item {{#if (eq currentRoute '/profile')}}active{{/if}}" data-nav="/profile">
+            <i class="fa-solid fa-user-gear w-5"></i>
+            <span>Cài đặt tài khoản</span>
+        </a>
+        
+        <a href="#" class="nav-item text-red-500 hover:bg-red-50" data-action="logout">
+            <i class="fa-solid fa-right-from-bracket w-5"></i>
+            <span>Đăng xuất</span>
+        </a>
+    </nav>
+</aside>

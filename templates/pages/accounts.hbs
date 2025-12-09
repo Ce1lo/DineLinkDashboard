@@ -1,0 +1,153 @@
+<!-- Accounts / Staff Management Page - Tailwind UI -->
+
+<!-- Page Header -->
+<div class="flex items-center justify-between mb-6">
+    <div>
+        <h1 class="text-2xl font-bold text-stone-900">Quản lý nhân sự</h1>
+        <p class="text-stone-500">Duyệt yêu cầu và quản lý tài khoản nhân viên</p>
+    </div>
+</div>
+
+<!-- Tabs -->
+<div class="flex gap-2 mb-6 border-b border-stone-200">
+    <button class="tab-btn active px-4 py-3 text-sm font-medium border-b-2 border-primary-500 text-primary-600"
+            onclick="switchAccountTab('pending')" id="pending-tab">
+        <i class="fa-solid fa-clock"></i>
+        Yêu cầu đăng ký
+        {{#if pending.length}}
+        <span class="ml-2 bg-orange-100 text-orange-700 text-xs font-semibold px-2 py-0.5 rounded-full">{{length pending}}</span>
+        {{/if}}
+    </button>
+    <button class="tab-btn px-4 py-3 text-sm font-medium border-b-2 border-transparent text-stone-500 hover:text-stone-700"
+            onclick="switchAccountTab('staff')" id="staff-tab">
+        <i class="fa-solid fa-users"></i>
+        Danh sách nhân viên
+    </button>
+</div>
+
+<!-- Pending Requests Tab -->
+<div id="pending-panel" class="tab-panel">
+    {{#if pending.length}}
+    <div class="grid gap-4">
+        {{#each pending}}
+        <div class="card p-5 flex items-center gap-4 animate-fade-in" style="animation-delay: {{@index}}0ms">
+            <img src="{{#if avatar}}{{avatar}}{{else}}https://i.pravatar.cc/50?img={{@index}}{{/if}}" 
+                 alt="{{name}}"
+                 class="w-12 h-12 rounded-full object-cover">
+            
+            <div class="flex-1 min-w-0">
+                <h4 class="font-semibold text-stone-900">{{name}}</h4>
+                <p class="text-sm text-stone-500">{{email}}</p>
+            </div>
+            
+            <div class="flex items-center gap-2">
+                <span class="badge bg-stone-100 text-stone-700">{{role}}</span>
+                <span class="text-sm text-stone-400">{{formatDate requestedAt}}</span>
+            </div>
+            
+            <div class="flex items-center gap-2">
+                <button class="btn btn-success" data-action="approve-account" data-account-id="{{id}}">
+                    <i class="fa-solid fa-check"></i>
+                    Duyệt
+                </button>
+                <button class="btn btn-outline text-red-500 hover:bg-red-50" data-action="reject-account" data-account-id="{{id}}">
+                    <i class="fa-solid fa-xmark"></i>
+                </button>
+            </div>
+        </div>
+        {{/each}}
+    </div>
+    {{else}}
+    <div class="empty-state py-16">
+        <i class="fa-solid fa-inbox"></i>
+        <p class="text-stone-500">Không có yêu cầu đăng ký nào</p>
+    </div>
+    {{/if}}
+</div>
+
+<!-- Staff List Tab -->
+<div id="staff-panel" class="tab-panel hidden">
+    {{#if accounts.length}}
+    <div class="card overflow-hidden">
+        <table class="data-table">
+            <thead>
+                <tr>
+                    <th>Nhân viên</th>
+                    <th>Vai trò</th>
+                    <th>Trạng thái</th>
+                    <th class="text-right">Thao tác</th>
+                </tr>
+            </thead>
+            <tbody>
+                {{#each accounts}}
+                <tr class="animate-fade-in" style="animation-delay: {{@index}}0ms">
+                    <td>
+                        <div class="flex items-center gap-3">
+                            <img src="{{#if avatar}}{{avatar}}{{else}}https://i.pravatar.cc/40?img={{@index}}{{/if}}" 
+                                 alt="{{name}}"
+                                 class="w-10 h-10 rounded-full object-cover">
+                            <div>
+                                <p class="font-medium text-stone-900">{{name}}</p>
+                                <p class="text-sm text-stone-500">{{email}}</p>
+                            </div>
+                        </div>
+                    </td>
+                    <td>
+                        {{#if (eq role 'OWNER')}}
+                        <span class="inline-flex items-center gap-1 px-2 py-1 bg-primary-100 text-primary-700 rounded-full text-sm font-medium">
+                            <i class="fa-solid fa-crown"></i>
+                            Chủ sở hữu
+                        </span>
+                        {{else if (eq role 'MANAGER')}}
+                        <span class="inline-flex items-center gap-1 px-2 py-1 bg-blue-100 text-blue-700 rounded-full text-sm font-medium">
+                            <i class="fa-solid fa-briefcase"></i>
+                            Quản lý
+                        </span>
+                        {{else}}
+                        <span class="inline-flex items-center gap-1 px-2 py-1 bg-stone-100 text-stone-700 rounded-full text-sm font-medium">
+                            <i class="fa-solid fa-user"></i>
+                            Nhân viên
+                        </span>
+                        {{/if}}
+                    </td>
+                    <td>
+                        {{#if (eq status 'ACTIVE')}}
+                        <span class="badge badge-confirmed">Hoạt động</span>
+                        {{else}}
+                        <span class="badge badge-no-show">Đã khoá</span>
+                        {{/if}}
+                    </td>
+                    <td class="text-right">
+                        {{#if (neq role 'OWNER')}}
+                        <div class="flex items-center justify-end gap-1">
+                            {{#if (eq status 'ACTIVE')}}
+                            <button class="btn btn-icon btn-secondary" data-action="toggle-account" data-account-id="{{id}}" data-current-status="ACTIVE" title="Khoá">
+                                <i class="fa-solid fa-lock"></i>
+                            </button>
+                            {{else}}
+                            <button class="btn btn-icon btn-secondary" data-action="toggle-account" data-account-id="{{id}}" data-current-status="INACTIVE" title="Mở khoá">
+                                <i class="fa-solid fa-unlock"></i>
+                            </button>
+                            {{/if}}
+                            <button class="btn btn-icon btn-secondary" data-action="change-role" data-account-id="{{id}}" title="Đổi vai trò">
+                                <i class="fa-solid fa-user-gear"></i>
+                            </button>
+                        </div>
+                        {{else}}
+                        <span class="text-stone-400">—</span>
+                        {{/if}}
+                    </td>
+                </tr>
+                {{/each}}
+            </tbody>
+        </table>
+    </div>
+    {{else}}
+    <div class="empty-state py-16">
+        <i class="fa-solid fa-users"></i>
+        <p class="text-stone-500">Chưa có nhân viên nào</p>
+    </div>
+    {{/if}}
+</div>
+
+

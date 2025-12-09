@@ -1,0 +1,35 @@
+<!-- Header - Tailwind UI with Font Awesome - Simplified -->
+<header class="main-header">
+    <div class="flex items-center gap-4 flex-1">
+        <!-- Mobile Menu Button -->
+        <button onclick="toggleSidebar()" class="lg:hidden p-2 -ml-2 rounded-lg hover:bg-stone-100 text-stone-600">
+            <i class="fa-solid fa-bars text-xl"></i>
+        </button>
+        
+        <!-- Search Bar -->
+        <div class="relative flex-1 max-w-lg">
+            <i class="fa-solid fa-magnifying-glass absolute left-3 top-1/2 -translate-y-1/2 text-stone-400"></i>
+            <input type="text" 
+                   placeholder="Tìm kiếm..." 
+                   class="w-full pl-10 pr-4 py-2.5 bg-stone-50 border border-stone-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500">
+        </div>
+        
+        <!-- Date Display - Click to navigate to bookings -->
+        <a href="#/bookings" data-nav="/bookings" 
+           class="hidden md:flex items-center gap-2 px-3 py-2 bg-stone-50 hover:bg-stone-100 rounded-lg text-stone-600 hover:text-primary-600 text-sm transition-colors cursor-pointer">
+            <i class="fa-regular fa-calendar"></i>
+            <span id="currentDate">{{formatDate today}}</span>
+        </a>
+        
+        <!-- Notifications -->
+        <a href="#/notifications" data-nav="/notifications" 
+           class="relative flex items-center justify-center w-10 h-10 rounded-lg bg-stone-50 hover:bg-stone-100 text-stone-600 hover:text-primary-600 transition-colors">
+            <i class="fa-solid fa-bell"></i>
+            {{#if unreadCount}}
+            <span class="absolute -top-1 -right-1 min-w-5 h-5 px-1 bg-red-500 text-white text-xs font-bold rounded-full flex items-center justify-center">
+                {{unreadCount}}
+            </span>
+            {{/if}}
+        </a>
+    </div>
+</header>

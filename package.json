@@ -1,0 +1,16 @@
+{
+  "name": "fe-dashboard-restaurant",
+  "version": "1.0.0",
+  "description": "Restaurant Dashboard SPA with Handlebars",
+  "scripts": {
+    "dev": "live-server --port=3000 --open=/index.html",
+    "mock": "node scripts/toggle-mock.js mock && npm run dev",
+    "prod": "node scripts/toggle-mock.js prod && npm run dev",
+    "toggle:mock": "node scripts/toggle-mock.js mock",
+    "toggle:prod": "node scripts/toggle-mock.js prod",
+    "status": "node scripts/toggle-mock.js status"
+  },
+  "devDependencies": {
+    "live-server": "^1.2.2"
+  }
+}

@@ -1,0 +1,176 @@
+<!-- Images & Menu Page - Tailwind UI -->
+
+<!-- Page Header -->
+<div class="flex items-center justify-between mb-6">
+    <div>
+        <h1 class="text-2xl font-bold text-stone-900">Hình ảnh & Menu</h1>
+        <p class="text-stone-500">Quản lý ảnh không gian và menu nhà hàng</p>
+    </div>
+</div>
+
+<!-- Tabs -->
+<div class="flex gap-2 mb-6 border-b border-stone-200">
+    <button class="tab-btn active px-4 py-3 text-sm font-medium border-b-2 border-primary-500 text-primary-600"
+            onclick="switchTab('cover')" id="cover-tab">
+        <i class="fa-solid fa-image"></i>
+        Ảnh Cover
+    </button>
+    <button class="tab-btn px-4 py-3 text-sm font-medium border-b-2 border-transparent text-stone-500 hover:text-stone-700"
+            onclick="switchTab('gallery')" id="gallery-tab">
+        <i class="fa-solid fa-images"></i>
+        Gallery không gian
+    </button>
+    <button class="tab-btn px-4 py-3 text-sm font-medium border-b-2 border-transparent text-stone-500 hover:text-stone-700"
+            onclick="switchTab('menu')" id="menu-tab">
+        <i class="fa-solid fa-circle"></i>
+        Ảnh Menu
+    </button>
+</div>
+
+<!-- Cover Tab -->
+<div id="cover-panel" class="tab-panel">
+    <div class="card">
+        <div class="flex items-center justify-between p-4 border-b border-stone-100">
+            <h3 class="font-semibold text-stone-900">Ảnh bìa nhà hàng</h3>
+            <button class="btn btn-primary btn-sm" data-action="uploadImage" data-type="COVER" onclick="openModal('uploadImageModal')">
+                <i class="fa-solid fa-upload"></i>
+                Thay ảnh cover
+            </button>
+        </div>
+        <div class="p-6">
+            {{#if cover.length}}
+            <div class="relative rounded-xl overflow-hidden">
+                <img src="{{cover.[0].url}}" alt="Cover" class="w-full max-h-96 object-cover">
+                <div class="absolute bottom-4 right-4 flex gap-2">
+                    <button class="btn btn-sm bg-white/80 backdrop-blur-sm" data-action="deleteImage" data-id="{{cover.[0].id}}">
+                        <i class="fa-solid fa-trash"></i>
+                    </button>
+                </div>
+            </div>
+            {{else}}
+            <div class="empty-state py-16 border-2 border-dashed border-stone-200 rounded-xl">
+                <i class="fa-solid fa-image"></i>
+                <p class="text-stone-500 mb-4">Chưa có ảnh cover</p>
+                <button class="btn btn-primary" data-action="uploadImage" data-type="COVER" onclick="openModal('uploadImageModal')">
+                    <i class="fa-solid fa-upload"></i>
+                    Upload ảnh cover
+                </button>
+            </div>
+            {{/if}}
+        </div>
+    </div>
+</div>
+
+<!-- Gallery Tab -->
+<div id="gallery-panel" class="tab-panel hidden">
+    <div class="card">
+        <div class="flex items-center justify-between p-4 border-b border-stone-100">
+            <h3 class="font-semibold text-stone-900">Ảnh không gian nhà hàng</h3>
+            <button class="btn btn-primary btn-sm" data-action="uploadImage" data-type="GALLERY" onclick="openModal('uploadImageModal')">
+                <i class="fa-solid fa-plus"></i>
+                Thêm ảnh
+            </button>
+        </div>
+        <div class="p-6">
+            {{#if gallery.length}}
+            <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+                {{#each gallery}}
+                <div class="group relative rounded-xl overflow-hidden aspect-square">
+                    <img src="{{url}}" alt="Gallery" class="w-full h-full object-cover">
+                    <div class="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-2">
+                        <button class="btn btn-icon bg-white/80" data-action="setPrimary" data-id="{{id}}" title="Đặt làm cover">
+                            <i class="fa-solid fa-star"></i>
+                        </button>
+                        <button class="btn btn-icon bg-white/80" data-action="deleteImage" data-id="{{id}}" title="Xoá">
+                            <i class="fa-solid fa-trash"></i>
+                        </button>
+                    </div>
+                </div>
+                {{/each}}
+            </div>
+            {{else}}
+            <div class="empty-state py-16 border-2 border-dashed border-stone-200 rounded-xl">
+                <i class="fa-solid fa-images"></i>
+                <p class="text-stone-500 mb-4">Chưa có ảnh không gian</p>
+                <button class="btn btn-primary" data-action="uploadImage" data-type="GALLERY" onclick="openModal('uploadImageModal')">
+                    <i class="fa-solid fa-plus"></i>
+                    Thêm ảnh đầu tiên
+                </button>
+            </div>
+            {{/if}}
+        </div>
+    </div>
+</div>
+
+<!-- Menu Tab -->
+<div id="menu-panel" class="tab-panel hidden">
+    <div class="card">
+        <div class="flex items-center justify-between p-4 border-b border-stone-100">
+            <h3 class="font-semibold text-stone-900">Ảnh menu</h3>
+            <button class="btn btn-primary btn-sm" data-action="uploadImage" data-type="MENU" onclick="openModal('uploadImageModal')">
+                <i class="fa-solid fa-plus"></i>
+                Thêm ảnh menu
+            </button>
+        </div>
+        <div class="p-6">
+            {{#if menu.length}}
+            <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+                {{#each menu}}
+                <div class="group relative rounded-xl overflow-hidden" style="aspect-ratio: 3/4;">
+                    <img src="{{url}}" alt="Menu" class="w-full h-full object-cover">
+                    <div class="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+                        <button class="btn btn-icon bg-white/80" data-action="deleteImage" data-id="{{id}}" title="Xoá">
+                            <i class="fa-solid fa-trash"></i>
+                        </button>
+                    </div>
+                </div>
+                {{/each}}
+            </div>
+            {{else}}
+            <div class="empty-state py-16 border-2 border-dashed border-stone-200 rounded-xl">
+                <i class="fa-solid fa-circle"></i>
+                <p class="text-stone-500 mb-4">Chưa có ảnh menu</p>
+                <button class="btn btn-primary" data-action="uploadImage" data-type="MENU" onclick="openModal('uploadImageModal')">
+                    <i class="fa-solid fa-plus"></i>
+                    Upload ảnh menu
+                </button>
+            </div>
+            {{/if}}
+        </div>
+    </div>
+</div>
+
+<!-- Upload Modal -->
+<div id="uploadImageModal" class="hidden">
+    <div class="modal-backdrop show" onclick="closeModal('uploadImageModal')"></div>
+    <div class="modal">
+        <div class="modal-header">
+            <h5 class="modal-title">Upload ảnh</h5>
+            <button class="modal-close" onclick="closeModal('uploadImageModal')">
+                <i class="fa-solid fa-xmark"></i>
+            </button>
+        </div>
+        <form id="uploadImageForm">
+            <div class="modal-body">
+                <input type="hidden" id="uploadImageType" name="type">
+                <div class="form-group">
+                    <label class="form-label">Chọn ảnh</label>
+                    <div class="border-2 border-dashed border-stone-300 rounded-lg p-8 text-center hover:border-primary-400 transition-colors cursor-pointer"
+                         onclick="document.getElementById('imageFile').click()">
+                        <i class="fa-solid fa-circle"></i>
+                        <p class="text-stone-600 font-medium">Click để chọn ảnh</p>
+                        <p class="text-sm text-stone-400">hoặc kéo thả vào đây</p>
+                        <input type="file" class="hidden" id="imageFile" name="file" accept="image/*" required>
+                    </div>
+                </div>
+                <div id="imagePreview" class="mt-4"></div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" onclick="closeModal('uploadImageModal')">Huỷ</button>
+                <button type="submit" class="btn btn-primary">Upload</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+

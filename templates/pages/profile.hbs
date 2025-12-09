@@ -1,0 +1,131 @@
+<!-- Profile Page - Tailwind UI -->
+
+<!-- Page Header -->
+<div class="mb-6">
+    <h1 class="text-2xl font-bold text-stone-900">Cài đặt tài khoản</h1>
+    <p class="text-stone-500">Quản lý thông tin cá nhân và bảo mật</p>
+</div>
+
+<div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+    <!-- Profile Info -->
+    <div class="card p-6">
+        <h3 class="text-lg font-semibold text-stone-900 mb-6 flex items-center gap-2">
+            <i class="fa-solid fa-user"></i>
+            Thông tin cá nhân
+        </h3>
+        
+        <form id="profileForm">
+            <!-- Avatar -->
+            <div class="flex justify-center mb-6">
+                <div class="relative">
+                    <img src="{{#if avatar}}{{avatar}}{{else}}https://i.pravatar.cc/120?img=12{{/if}}" 
+                         alt="{{name}}"
+                         id="avatarPreview"
+                         class="w-24 h-24 rounded-full object-cover border-4 border-white shadow-lg">
+                    <label for="avatarUpload" 
+                           class="absolute -bottom-1 -right-1 w-8 h-8 bg-primary-500 rounded-full flex items-center justify-center cursor-pointer hover:bg-primary-600 transition-colors shadow-md">
+                        <i class="fa-solid fa-camera"></i>
+                    </label>
+                    <input type="file" id="avatarUpload" class="hidden" accept="image/*">
+                </div>
+            </div>
+            
+            <div class="form-group">
+                <label for="profileName" class="form-label">Họ và tên</label>
+                <input type="text" class="form-input" id="profileName" name="name" 
+                       value="{{name}}" required>
+            </div>
+            
+            <div class="form-group">
+                <label for="profileEmail" class="form-label">Email</label>
+                <input type="email" class="form-input bg-stone-50" id="profileEmail" name="email" 
+                       value="{{email}}" readonly disabled>
+                <p class="text-xs text-stone-400 mt-1">Email không thể thay đổi</p>
+            </div>
+            
+            <div class="form-group">
+                <label class="form-label">Vai trò</label>
+                <div class="flex items-center gap-2">
+                    {{#if (eq role 'OWNER')}}
+                    <span class="badge bg-primary-100 text-primary-700">
+                        <i class="fa-solid fa-crown"></i>
+                        Chủ nhà hàng
+                    </span>
+                    {{else if (eq role 'MANAGER')}}
+                    <span class="badge bg-blue-100 text-blue-700">
+                        <i class="fa-solid fa-briefcase"></i>
+                        Quản lý
+                    </span>
+                    {{else}}
+                    <span class="badge bg-stone-100 text-stone-700">
+                        <i class="fa-solid fa-user"></i>
+                        Nhân viên
+                    </span>
+                    {{/if}}
+                </div>
+            </div>
+            
+            <div class="form-group">
+                <label class="form-label">Nhà hàng</label>
+                <p class="text-stone-700 font-medium">{{restaurantName}}</p>
+            </div>
+            
+            <button type="submit" class="btn btn-primary w-full">
+                <i class="fa-solid fa-check"></i>
+                Lưu thay đổi
+            </button>
+        </form>
+    </div>
+    
+    <!-- Change Password -->
+    <div class="card p-6">
+        <h3 class="text-lg font-semibold text-stone-900 mb-6 flex items-center gap-2">
+            <i class="fa-solid fa-key"></i>
+            Đổi mật khẩu
+        </h3>
+        
+        <form id="changePasswordForm">
+            <div class="form-group">
+                <label for="currentPassword" class="form-label">Mật khẩu hiện tại</label>
+                <div class="relative">
+                    <input type="password" class="form-input pr-10" id="currentPassword" 
+                           name="currentPassword" required>
+                    <button type="button" class="absolute right-3 top-1/2 -translate-y-1/2 text-stone-400">
+                        <i class="fa-solid fa-eye"></i>
+                    </button>
+                </div>
+            </div>
+            
+            <div class="form-group">
+                <label for="newPassword" class="form-label">Mật khẩu mới</label>
+                <input type="password" class="form-input" id="newPassword" 
+                       name="newPassword" required minlength="6">
+                <p class="text-xs text-stone-400 mt-1">Tối thiểu 6 ký tự</p>
+            </div>
+            
+            <div class="form-group">
+                <label for="confirmNewPassword" class="form-label">Nhập lại mật khẩu mới</label>
+                <input type="password" class="form-input" id="confirmNewPassword" 
+                       name="confirmNewPassword" required>
+            </div>
+            
+            <button type="submit" class="btn btn-primary w-full">
+                <i class="fa-solid fa-key"></i>
+                Đổi mật khẩu
+            </button>
+        </form>
+        
+        <!-- Security Notice -->
+        <div class="mt-6 p-4 bg-yellow-50 border border-yellow-200 rounded-xl">
+            <div class="flex gap-3">
+                <i class="fa-solid fa-circle"></i>
+                <div>
+                    <p class="text-sm font-medium text-yellow-800">Bảo mật tài khoản</p>
+                    <p class="text-sm text-yellow-700 mt-1">
+                        Sử dụng mật khẩu mạnh và không chia sẻ với người khác.
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
