@@ -32,7 +32,7 @@
 <div class="card overflow-hidden">
     {{#each data}}
     <div class="notification-item flex items-start gap-4 p-4 border-b border-stone-100 hover:bg-stone-50 cursor-pointer transition-colors {{#unless isRead}}bg-primary-50/50{{/unless}} animate-fade-in"
-         data-action="notification-click" data-notification-id="{{id}}" data-type="{{type}}"
+         data-action="notification-click" data-notification-id="{{id}}" data-type="{{type}}" data-booking-id="{{bookingId}}"
          style="animation-delay: {{@index}}0ms">
         
         <!-- Icon -->

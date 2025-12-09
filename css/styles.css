@@ -147,7 +147,7 @@ body {
 /* ==================== SIDEBAR ==================== */
 .sidebar {
   width: 280px;
-  min-height: 100vh;
+  height: 100vh;
   background: white;
   box-shadow: 2px 0 8px rgba(0, 0, 0, 0.04);
   position: fixed;
@@ -155,15 +155,39 @@ body {
   top: 0;
   z-index: 40;
   transition: transform 0.3s ease;
+  display: flex;
+  flex-direction: column;
 }
 
 .sidebar-header {
   padding: 1.5rem;
   border-bottom: 1px solid #f5f5f4;
+  flex-shrink: 0;
 }
 
 .sidebar-nav {
   padding: 1rem 0;
+  flex: 1;
+  overflow-y: auto;
+  overflow-x: hidden;
+}
+
+/* Scrollbar styling for sidebar */
+.sidebar-nav::-webkit-scrollbar {
+  width: 4px;
+}
+
+.sidebar-nav::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.sidebar-nav::-webkit-scrollbar-thumb {
+  background: #d6d3d1;
+  border-radius: 2px;
+}
+
+.sidebar-nav::-webkit-scrollbar-thumb:hover {
+  background: #a8a29e;
 }
 
 .nav-item {

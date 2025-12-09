@@ -58,6 +58,62 @@ export const TablesView = {
                 }
             });
         });
+
+        // Image upload handling
+        const uploadArea = document.querySelector('#tableFormModal .border-dashed');
+        const fileInput = document.getElementById('tableViewImage');
+        const previewContainer = document.getElementById('viewImagePreview');
+        
+        if (uploadArea && fileInput) {
+            uploadArea.addEventListener('click', () => fileInput.click());
+            fileInput.addEventListener('change', (e) => {
+                const file = e.target.files[0];
+                if (file) {
+                    this.previewImage(file, previewContainer);
+                }
+            });
+        }
+
+        // Reset form when opening add modal
+        const addBtn = document.querySelector('[data-action="addTable"]');
+        if (addBtn) {
+            addBtn.addEventListener('click', () => {
+                const title = document.getElementById('tableFormTitle');
+                if (title) title.textContent = 'Thêm bàn mới';
+                document.getElementById('tableId').value = '';
+                document.getElementById('tableForm').reset();
+                const preview = document.getElementById('viewImagePreview');
+                if (preview) preview.innerHTML = '';
+            });
+        }
+    },
+
+    /**
+     * Preview selected image
+     */
+    previewImage(file, container) {
+        if (!container) return;
+        
+        const reader = new FileReader();
+        reader.onload = (e) => {
+            container.innerHTML = `
+                <div class="relative inline-block w-full">
+                    <img src="${e.target.result}" alt="Preview" 
+                         class="w-full h-32 object-cover rounded-lg border border-stone-200">
+                    <button type="button" 
+                            class="absolute top-2 right-2 bg-red-500 text-white w-6 h-6 rounded-full flex items-center justify-center hover:bg-red-600 transition-colors"
+                            id="removeImagePreview">
+                        <i class="fa-solid fa-xmark text-xs"></i>
+                    </button>
+                </div>
+            `;
+            // Add remove button handler
+            document.getElementById('removeImagePreview')?.addEventListener('click', () => {
+                container.innerHTML = '';
+                document.getElementById('tableViewImage').value = '';
+            });
+        };
+        reader.readAsDataURL(file);
     },
 
     /**

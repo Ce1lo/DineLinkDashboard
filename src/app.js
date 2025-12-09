@@ -238,14 +238,18 @@ const App = {
 
     setupEventListeners() {
         document.addEventListener('click', async (e) => {
-            if (e.target.matches('[data-action="logout"]')) {
+            // Handle logout - use closest to capture clicks on child elements (icon/text)
+            const logoutBtn = e.target.closest('[data-action="logout"]');
+            if (logoutBtn) {
                 e.preventDefault();
                 AuthService.logout();
             }
 
-            if (e.target.matches('[data-nav]')) {
+            // Handle navigation - use closest to capture clicks on child elements
+            const navBtn = e.target.closest('[data-nav]');
+            if (navBtn) {
                 e.preventDefault();
-                const path = e.target.dataset.nav;
+                const path = navBtn.dataset.nav;
                 Router.navigate(path);
             }
         });
