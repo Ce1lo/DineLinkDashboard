@@ -214,4 +214,25 @@
     </div>
 </div>
 
+<!-- Booking Detail Modal -->
+<div id="bookingDetailModal" class="hidden">
+    <div class="modal-backdrop" onclick="closeModal('bookingDetailModal')"></div>
+    <div class="modal">
+        <div class="modal-header">
+            <h5 class="modal-title">Chi tiết đặt bàn</h5>
+            <button class="modal-close" onclick="closeModal('bookingDetailModal')">
+                <i class="fa-solid fa-xmark"></i>
+            </button>
+        </div>
+        <div class="modal-body" id="bookingDetailContent">
+            <!-- Content will be populated dynamically -->
+            <div class="text-center py-4">
+                <i class="fa-solid fa-spinner fa-spin text-2xl text-stone-400"></i>
+            </div>
+        </div>
+        <div class="modal-footer">
+            <button class="btn btn-secondary" onclick="closeModal('bookingDetailModal')">Đóng</button>
+        </div>
+    </div>
+</div>
 
