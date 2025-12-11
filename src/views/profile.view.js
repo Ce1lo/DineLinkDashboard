@@ -58,7 +58,7 @@ export const ProfileView = {
         const formData = new FormData(form);
         const data = Object.fromEntries(formData.entries());
 
-        if (data.newPassword !== data.confirmPassword) {
+        if (data.newPassword !== data.confirmNewPassword) {
             App.showError('Mật khẩu mới không khớp!');
             return;
         }

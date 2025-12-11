@@ -90,23 +90,42 @@
                 <div class="relative">
                     <input type="password" class="form-input pr-10" id="currentPassword" 
                            name="currentPassword" required>
-                    <button type="button" class="absolute right-3 top-1/2 -translate-y-1/2 text-stone-400">
-                        <i class="fa-solid fa-eye"></i>
+                    <button type="button" 
+                            class="absolute right-3 top-1/2 -translate-y-1/2 text-stone-400 hover:text-stone-600"
+                            onclick="togglePassword('currentPassword', 'currentPwdIcon')"
+                            tabindex="-1">
+                        <i class="fa-solid fa-eye" id="currentPwdIcon"></i>
                     </button>
                 </div>
             </div>
             
             <div class="form-group">
                 <label for="newPassword" class="form-label">Mật khẩu mới</label>
-                <input type="password" class="form-input" id="newPassword" 
-                       name="newPassword" required minlength="6">
+                <div class="relative">
+                    <input type="password" class="form-input pr-10" id="newPassword" 
+                           name="newPassword" required minlength="6">
+                    <button type="button" 
+                            class="absolute right-3 top-1/2 -translate-y-1/2 text-stone-400 hover:text-stone-600"
+                            onclick="togglePassword('newPassword', 'newPwdIcon')"
+                            tabindex="-1">
+                        <i class="fa-solid fa-eye" id="newPwdIcon"></i>
+                    </button>
+                </div>
                 <p class="text-xs text-stone-400 mt-1">Tối thiểu 6 ký tự</p>
             </div>
             
             <div class="form-group">
                 <label for="confirmNewPassword" class="form-label">Nhập lại mật khẩu mới</label>
-                <input type="password" class="form-input" id="confirmNewPassword" 
-                       name="confirmNewPassword" required>
+                <div class="relative">
+                    <input type="password" class="form-input pr-10" id="confirmNewPassword" 
+                           name="confirmNewPassword" required>
+                    <button type="button" 
+                            class="absolute right-3 top-1/2 -translate-y-1/2 text-stone-400 hover:text-stone-600"
+                            onclick="togglePassword('confirmNewPassword', 'confirmPwdIcon')"
+                            tabindex="-1">
+                        <i class="fa-solid fa-eye" id="confirmPwdIcon"></i>
+                    </button>
+                </div>
             </div>
             
             <button type="submit" class="btn btn-primary w-full">
