@@ -149,12 +149,13 @@
     <div class="text-sm text-stone-500">
         Hiển thị {{pagination.from}}-{{pagination.to}} trong số {{pagination.total}} đánh giá
     </div>
-    <div class="flex gap-2">
-        <button class="btn btn-outline btn-sm {{#unless pagination.hasPrev}}opacity-50 cursor-not-allowed{{/unless}}" 
+    <div class="flex gap-2 items-center">
+        <button class="btn btn-outline px-4 py-2 {{#unless pagination.hasPrev}}opacity-50 cursor-not-allowed{{/unless}}" 
                 {{#if pagination.hasPrev}}onclick="changePage({{subtract pagination.currentPage 1}})"{{else}}disabled{{/if}}>
             <i class="fa-solid fa-chevron-left"></i>
         </button>
-        <button class="btn btn-outline btn-sm {{#unless pagination.hasNext}}opacity-50 cursor-not-allowed{{/unless}}"
+        <span class="text-sm text-stone-600 font-medium px-2">{{pagination.currentPage}} / {{pagination.totalPages}}</span>
+        <button class="btn btn-outline px-4 py-2 {{#unless pagination.hasNext}}opacity-50 cursor-not-allowed{{/unless}}"
                 {{#if pagination.hasNext}}onclick="changePage({{add pagination.currentPage 1}})"{{else}}disabled{{/if}}>
             <i class="fa-solid fa-chevron-right"></i>
         </button>
