@@ -159,13 +159,13 @@
                             </div>
                         </div>
                     </td>
-                    <td>
+                    <td class="text-center">
                         <span class="inline-flex items-center gap-1 text-stone-600">
                             <i class="fa-solid fa-users text-xs"></i>
                             {{guests}}
                         </span>
                     </td>
-                    <td>
+                    <td class="text-center">
                         {{#if table}}
                         <span class="inline-flex items-center px-2.5 py-1 bg-stone-100 text-stone-700 rounded-lg text-sm font-bold">
                             {{table}}
@@ -174,7 +174,7 @@
                         <span class="text-stone-400">—</span>
                         {{/if}}
                     </td>
-                    <td>
+                    <td class="text-center">
                         {{#if (eq status 'PENDING')}}
                         <span class="badge badge-pending">Chờ xác nhận</span>
                         {{else if (eq status 'CONFIRMED')}}

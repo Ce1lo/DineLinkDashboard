@@ -12,6 +12,10 @@ export const AccountsService = {
         return ApiService.get('/accounts');
     },
 
+    async getById(id) {
+        return ApiService.get(`/accounts/${id}`);
+    },
+
     async approve(id) {
         return ApiService.post(`/accounts/${id}/approve`);
     },

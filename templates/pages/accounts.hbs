@@ -52,6 +52,7 @@
                 </button>
                 <button class="btn btn-outline text-red-500 hover:bg-red-50" data-action="reject-account" data-account-id="{{id}}">
                     <i class="fa-solid fa-xmark"></i>
+                    Từ chối
                 </button>
             </div>
         </div>
@@ -98,11 +99,6 @@
                             <i class="fa-solid fa-crown"></i>
                             Chủ sở hữu
                         </span>
-                        {{else if (eq role 'MANAGER')}}
-                        <span class="inline-flex items-center gap-1 px-2 py-1 bg-blue-100 text-blue-700 rounded-full text-sm font-medium">
-                            <i class="fa-solid fa-briefcase"></i>
-                            Quản lý
-                        </span>
                         {{else}}
                         <span class="inline-flex items-center gap-1 px-2 py-1 bg-stone-100 text-stone-700 rounded-full text-sm font-medium">
                             <i class="fa-solid fa-user"></i>
@@ -121,19 +117,18 @@
                     </td>
                     <td class="text-right">
                         {{#if (neq role 'OWNER')}}
-                        <div class="flex items-center justify-end gap-1">
+                        <div class="flex items-center justify-end gap-2">
                             {{#if (eq status 'ACTIVE')}}
-                            <button class="btn btn-icon btn-secondary" data-action="toggle-account" data-account-id="{{id}}" data-current-status="ACTIVE" title="Khoá">
+                            <button class="btn btn-sm btn-secondary text-stone-600" data-action="toggle-account" data-account-id="{{id}}" data-current-status="ACTIVE" title="Khoá">
                                 <i class="fa-solid fa-lock"></i>
+                                <span>Khoá</span>
                             </button>
                             {{else}}
-                            <button class="btn btn-icon btn-secondary" data-action="toggle-account" data-account-id="{{id}}" data-current-status="INACTIVE" title="Mở khoá">
+                            <button class="btn btn-sm btn-secondary text-stone-600" data-action="toggle-account" data-account-id="{{id}}" data-current-status="INACTIVE" title="Mở khoá">
                                 <i class="fa-solid fa-unlock"></i>
+                                <span>Mở</span>
                             </button>
                             {{/if}}
-                            <button class="btn btn-icon btn-secondary" data-action="change-role" data-account-id="{{id}}" data-current-role="{{role}}" data-account-name="{{name}}" title="Đổi vai trò">
-                                <i class="fa-solid fa-user-gear"></i>
-                            </button>
                         </div>
                         {{else}}
                         <span class="text-stone-400">—</span>
@@ -143,6 +138,23 @@
                 {{/each}}
             </tbody>
         </table>
+    </div>
+    
+    <!-- Pagination -->
+    <div class="flex justify-between items-center mt-4">
+        <div class="text-sm text-stone-500">
+            Hiển thị {{pagination.from}}-{{pagination.to}} trong số {{pagination.total}} nhân viên
+        </div>
+        <div class="flex gap-2">
+            <button class="btn btn-outline btn-sm {{#unless pagination.hasPrev}}opacity-50 cursor-not-allowed{{/unless}}" 
+                    {{#if pagination.hasPrev}}onclick="changePage({{subtract pagination.currentPage 1}})"{{else}}disabled{{/if}}>
+                <i class="fa-solid fa-chevron-left"></i>
+            </button>
+            <button class="btn btn-outline btn-sm {{#unless pagination.hasNext}}opacity-50 cursor-not-allowed{{/unless}}"
+                    {{#if pagination.hasNext}}onclick="changePage({{add pagination.currentPage 1}})"{{else}}disabled{{/if}}>
+                <i class="fa-solid fa-chevron-right"></i>
+            </button>
+        </div>
     </div>
     {{else}}
     <div class="empty-state py-16">
@@ -166,24 +178,18 @@
             <p class="text-stone-600 mb-4">Chọn vai trò mới cho <span id="changeRoleAccountName" class="font-semibold"></span>:</p>
             <input type="hidden" id="changeRoleAccountId" value="">
             <div class="space-y-3" id="roleOptions">
-                <label class="flex items-center gap-3 p-3 border rounded-lg cursor-pointer hover:bg-stone-50 transition-colors role-option">
-                    <input type="radio" name="newRole" value="MANAGER" class="w-4 h-4 text-primary-600">
-                    <div class="flex-1">
-                        <div class="flex items-center gap-2">
-                            <i class="fa-solid fa-briefcase text-blue-500"></i>
-                            <span class="font-medium">Quản lý</span>
-                        </div>
-                        <p class="text-sm text-stone-500">Có thể duyệt đặt bàn, quản lý nhân viên</p>
+                <label class="flex items-center gap-3 p-3 border border-stone-200 rounded-lg cursor-pointer hover:bg-stone-50">
+                    <input type="radio" name="newRole" value="OWNER" class="form-radio">
+                    <div class="flex items-center gap-2">
+                        <i class="fa-solid fa-crown text-primary-500"></i>
+                        <span class="font-medium">Chủ sở hữu</span>
                     </div>
                 </label>
-                <label class="flex items-center gap-3 p-3 border rounded-lg cursor-pointer hover:bg-stone-50 transition-colors role-option">
-                    <input type="radio" name="newRole" value="STAFF" class="w-4 h-4 text-primary-600">
-                    <div class="flex-1">
-                        <div class="flex items-center gap-2">
-                            <i class="fa-solid fa-user text-stone-500"></i>
-                            <span class="font-medium">Nhân viên</span>
-                        </div>
-                        <p class="text-sm text-stone-500">Xem và xử lý đặt bàn cơ bản</p>
+                <label class="flex items-center gap-3 p-3 border border-stone-200 rounded-lg cursor-pointer hover:bg-stone-50">
+                    <input type="radio" name="newRole" value="STAFF" class="form-radio">
+                    <div class="flex items-center gap-2">
+                        <i class="fa-solid fa-user text-stone-500"></i>
+                        <span class="font-medium">Nhân viên</span>
                     </div>
                 </label>
             </div>

@@ -13,8 +13,8 @@
 
 <!-- Filters -->
 <div class="card p-4 mb-6">
-    <form id="reviewFilterForm" class="flex flex-wrap items-end gap-4">
-        <div class="form-group mb-0 min-w-48">
+    <form id="reviewFilterForm" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-6 gap-4">
+        <div class="form-group mb-0 lg:col-span-1">
             <label for="ratingFilter" class="form-label">Số sao</label>
             <select class="form-input form-select" id="ratingFilter" name="rating">
                 <option value="">Tất cả</option>
@@ -25,7 +25,7 @@
                 <option value="1">⭐ 1 sao</option>
             </select>
         </div>
-        <div class="form-group mb-0 min-w-48">
+        <div class="form-group mb-0 lg:col-span-1">
             <label for="statusFilter" class="form-label">Trạng thái</label>
             <select class="form-input form-select" id="statusFilter" name="status">
                 <option value="">Tất cả</option>
@@ -33,10 +33,20 @@
                 <option value="hidden">Đã ẩn</option>
             </select>
         </div>
-        <button type="submit" class="btn btn-primary">
-            <i class="fa-solid fa-filter"></i>
-            Lọc
-        </button>
+        <div class="form-group mb-0 lg:col-span-1">
+            <label for="fromDate" class="form-label">Từ ngày</label>
+            <input type="date" class="form-input" id="fromDate" name="from">
+        </div>
+        <div class="form-group mb-0 lg:col-span-1">
+            <label for="toDate" class="form-label">Đến ngày</label>
+            <input type="date" class="form-input" id="toDate" name="to">
+        </div>
+        <div class="form-group mb-0 lg:col-span-2 flex items-end">
+            <button type="submit" class="btn btn-primary w-full md:w-auto">
+                <i class="fa-solid fa-filter"></i>
+                Lọc
+            </button>
+        </div>
     </form>
 </div>
 
@@ -132,4 +142,21 @@
         <p class="text-stone-500">Chưa có đánh giá nào</p>
     </div>
     {{/each}}
+</div>
+
+<!-- Pagination -->
+<div class="flex justify-between items-center mt-6">
+    <div class="text-sm text-stone-500">
+        Hiển thị {{pagination.from}}-{{pagination.to}} trong số {{pagination.total}} đánh giá
+    </div>
+    <div class="flex gap-2">
+        <button class="btn btn-outline btn-sm {{#unless pagination.hasPrev}}opacity-50 cursor-not-allowed{{/unless}}" 
+                {{#if pagination.hasPrev}}onclick="changePage({{subtract pagination.currentPage 1}})"{{else}}disabled{{/if}}>
+            <i class="fa-solid fa-chevron-left"></i>
+        </button>
+        <button class="btn btn-outline btn-sm {{#unless pagination.hasNext}}opacity-50 cursor-not-allowed{{/unless}}"
+                {{#if pagination.hasNext}}onclick="changePage({{add pagination.currentPage 1}})"{{else}}disabled{{/if}}>
+            <i class="fa-solid fa-chevron-right"></i>
+        </button>
+    </div>
 </div>

@@ -68,6 +68,12 @@ export const NotificationsView = {
                 Router.navigate(`/notifications${params.toString() ? '?' + params.toString() : ''}`);
             });
         }
+
+        window.changePage = (page) => {
+            const params = new URLSearchParams(window.location.hash.split('?')[1] || '');
+            params.set('page', page);
+            Router.navigate(`/notifications?${params.toString()}`);
+        };
     },
 
     /**

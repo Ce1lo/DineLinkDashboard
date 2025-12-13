@@ -264,7 +264,7 @@ const App = {
     },
 
     async renderAccounts() {
-        await AccountsView.render(this);
+        await AccountsView.render(this, Router);
     },
 
     async renderProfile() {

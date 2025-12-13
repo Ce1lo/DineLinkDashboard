@@ -150,6 +150,72 @@ const _restaurantAccounts = [
         avatar_url: 'https://i.pravatar.cc/150?img=22',
         created_at: '2024-12-02T00:00:00Z',
         updated_at: '2024-12-02T00:00:00Z'
+    },
+    {
+        id: 7,
+        restaurant_id: 1,
+        full_name: 'Nguyễn Thị Thu',
+        email: 'thu@email.com',
+        role: 'STAFF',
+        status: 'ACTIVE',
+        avatar_url: 'https://i.pravatar.cc/150?img=30',
+        created_at: '2024-05-01T00:00:00Z',
+        updated_at: '2024-05-01T00:00:00Z'
+    },
+    {
+        id: 8,
+        restaurant_id: 1,
+        full_name: 'Trần Văn Hùng',
+        email: 'hung@email.com',
+        role: 'STAFF',
+        status: 'ACTIVE',
+        avatar_url: 'https://i.pravatar.cc/150?img=31',
+        created_at: '2024-05-02T00:00:00Z',
+        updated_at: '2024-05-02T00:00:00Z'
+    },
+    {
+        id: 9,
+        restaurant_id: 1,
+        full_name: 'Phạm Thị Lan',
+        email: 'lan@email.com',
+        role: 'STAFF',
+        status: 'ACTIVE',
+        avatar_url: 'https://i.pravatar.cc/150?img=32',
+        created_at: '2024-05-03T00:00:00Z',
+        updated_at: '2024-05-03T00:00:00Z'
+    },
+    {
+        id: 10,
+        restaurant_id: 1,
+        full_name: 'Hoàng Văn Minh',
+        email: 'minh@email.com',
+        role: 'STAFF',
+        status: 'ACTIVE',
+        avatar_url: 'https://i.pravatar.cc/150?img=33',
+        created_at: '2024-05-04T00:00:00Z',
+        updated_at: '2024-05-04T00:00:00Z'
+    },
+    {
+        id: 11,
+        restaurant_id: 1,
+        full_name: 'Vũ Thị Ngọc',
+        email: 'ngoc@email.com',
+        role: 'STAFF',
+        status: 'ACTIVE',
+        avatar_url: 'https://i.pravatar.cc/150?img=34',
+        created_at: '2024-05-05T00:00:00Z',
+        updated_at: '2024-05-05T00:00:00Z'
+    },
+    {
+        id: 12,
+        restaurant_id: 1,
+        full_name: 'Đặng Văn Kiên',
+        email: 'kien@email.com',
+        role: 'STAFF',
+        status: 'ACTIVE',
+        avatar_url: 'https://i.pravatar.cc/150?img=35',
+        created_at: '2024-05-06T00:00:00Z',
+        updated_at: '2024-05-06T00:00:00Z'
     }
 ];
 
@@ -389,6 +455,90 @@ const _reviews = [
         owner_reply: null,
         created_at: '2024-11-20T19:00:00Z',
         updated_at: '2024-11-21T09:00:00Z'
+    },
+    {
+        id: 6,
+        booking_id: 9,
+        restaurant_id: 1,
+        user_id: 2,
+        rating: 5,
+        comment: 'Tuyệt vời!',
+        status: 'VISIBLE',
+        owner_reply: null,
+        created_at: '2024-11-19T10:00:00Z',
+        updated_at: '2024-11-19T10:00:00Z'
+    },
+    {
+        id: 7,
+        booking_id: 10,
+        restaurant_id: 1,
+        user_id: 3,
+        rating: 4,
+        comment: 'Good service',
+        status: 'VISIBLE',
+        owner_reply: null,
+        created_at: '2024-11-18T10:00:00Z',
+        updated_at: '2024-11-18T10:00:00Z'
+    },
+    {
+        id: 8,
+        booking_id: null,
+        restaurant_id: 1,
+        user_id: 4,
+        rating: 3,
+        comment: 'Average',
+        status: 'VISIBLE',
+        owner_reply: null,
+        created_at: '2024-11-17T10:00:00Z',
+        updated_at: '2024-11-17T10:00:00Z'
+    },
+    {
+        id: 9,
+        booking_id: null,
+        restaurant_id: 1,
+        user_id: 5,
+        rating: 5,
+        comment: 'Excellent!',
+        status: 'VISIBLE',
+        owner_reply: null,
+        created_at: '2024-11-16T10:00:00Z',
+        updated_at: '2024-11-16T10:00:00Z'
+    },
+    {
+        id: 10,
+        booking_id: null,
+        restaurant_id: 1,
+        user_id: 1,
+        rating: 4,
+        comment: 'Nice place',
+        status: 'VISIBLE',
+        owner_reply: null,
+        created_at: '2024-11-15T10:00:00Z',
+        updated_at: '2024-11-15T10:00:00Z'
+    },
+    {
+        id: 11,
+        booking_id: null,
+        restaurant_id: 1,
+        user_id: 2,
+        rating: 5,
+        comment: 'Love it',
+        status: 'VISIBLE',
+        owner_reply: null,
+        created_at: '2024-11-14T10:00:00Z',
+        updated_at: '2024-11-14T10:00:00Z'
+    },
+    {
+        id: 12,
+        booking_id: null,
+        restaurant_id: 1,
+        user_id: 3,
+        rating: 3,
+        comment: 'Okay',
+        status: 'VISIBLE',
+        owner_reply: null,
+        created_at: '2024-11-13T10:00:00Z',
+        updated_at: '2024-11-13T10:00:00Z'
     }
 ];
 

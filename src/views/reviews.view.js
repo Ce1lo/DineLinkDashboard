@@ -18,13 +18,26 @@ export const ReviewsView = {
             filterForm.addEventListener('submit', (e) => {
                 e.preventDefault();
                 const formData = new FormData(filterForm);
-                const params = new URLSearchParams();
+                const params = new URLSearchParams(window.location.hash.split('?')[1] || '');
+                
+                // Update existing params with new values from form
                 formData.forEach((value, key) => {
-                    if (value) params.append(key, value);
+                    if (value) params.set(key, value);
+                    else params.delete(key);
                 });
+                
+                // Reset to page 1 on filter
+                params.set('page', '1');
+                
                 Router.navigate(`/reviews?${params.toString()}`);
             });
         }
+
+        window.changePage = (page) => {
+            const params = new URLSearchParams(window.location.hash.split('?')[1] || '');
+            params.set('page', page);
+            Router.navigate(`/reviews?${params.toString()}`);
+        };
 
         document.querySelectorAll('[data-action="hideReview"]').forEach(btn => {
             btn.addEventListener('click', async (e) => {

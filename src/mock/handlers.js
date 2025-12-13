@@ -226,6 +226,21 @@ export const MockHandlers = {
         return { success: true, message: 'Đã xóa bàn' };
     },
 
+    async uploadTableViewImage(tableId, file, description = '') {
+        await this.delay();
+        const table = MOCK_DATA.restaurantTables.find(t => t.id === parseInt(tableId));
+        if (table) {
+            // Simulate upload by setting a mock URL
+            table.view_image_url = `https://picsum.photos/seed/${tableId}/400/300`;
+            table.view_note = description || table.view_note;
+        }
+        return { 
+            success: true, 
+            message: 'Đã upload ảnh view bàn',
+            imageUrl: `https://picsum.photos/seed/${tableId}/400/300`
+        };
+    },
+
     // ==================== IMAGES ====================
     
     async getImages(type = null) {
@@ -297,7 +312,38 @@ export const MockHandlers = {
             reviews = reviews.filter(r => !r.isVisible);
         }
         
-        return { data: reviews, total: reviews.length };
+        // Filter by date range
+        if (params.from) {
+            const fromDate = new Date(params.from);
+            reviews = reviews.filter(r => new Date(r.createdAt) >= fromDate);
+        }
+        if (params.to) {
+            const toDate = new Date(params.to);
+            // Set end of day
+            toDate.setHours(23, 59, 59, 999);
+            reviews = reviews.filter(r => new Date(r.createdAt) <= toDate);
+        }
+
+        const page = parseInt(params.page) || 1;
+        const limit = parseInt(params.limit) || 5; // Less items per page for reviews
+        const startIndex = (page - 1) * limit;
+        const endIndex = startIndex + limit;
+        
+        const paginatedReviews = reviews.slice(startIndex, endIndex);
+        
+        return { 
+            data: paginatedReviews, 
+            total: reviews.length,
+            pagination: {
+                currentPage: page,
+                totalPages: Math.ceil(reviews.length / limit),
+                total: reviews.length,
+                from: startIndex + 1,
+                to: Math.min(endIndex, reviews.length),
+                hasNext: endIndex < reviews.length,
+                hasPrev: page > 1
+            }
+        };
     },
 
     async getReviewById(id) {
@@ -378,9 +424,25 @@ export const MockHandlers = {
             notifications = notifications.filter(n => n.type === params.type);
         }
         
+        const page = parseInt(params.page) || 1;
+        const limit = parseInt(params.limit) || 10;
+        const startIndex = (page - 1) * limit;
+        const endIndex = startIndex + limit;
+        
+        const paginatedNotifications = notifications.slice(startIndex, endIndex);
+        
         return { 
-            data: notifications, 
+            data: paginatedNotifications, 
             total: notifications.length,
+            pagination: {
+                currentPage: page,
+                totalPages: Math.ceil(notifications.length / limit),
+                total: notifications.length,
+                from: startIndex + 1,
+                to: Math.min(endIndex, notifications.length),
+                hasNext: endIndex < notifications.length,
+                hasPrev: page > 1
+            },
             unreadCount: notifications.filter(n => !n.isRead).length
         };
     },
@@ -457,7 +519,7 @@ export const MockHandlers = {
         return { data: pending };
     },
 
-    async getAccounts() {
+    async getAccounts(params = {}) {
         await this.delay();
         const accounts = MOCK_DATA.restaurantAccounts
             .filter(a => a.status !== 'PENDING')
@@ -470,7 +532,27 @@ export const MockHandlers = {
                 avatar: a.avatar_url,
                 createdAt: a.created_at
             }));
-        return { data: accounts };
+
+        const page = parseInt(params.page) || 1;
+        const limit = parseInt(params.limit) || 10;
+        const startIndex = (page - 1) * limit;
+        const endIndex = startIndex + limit;
+        
+        const paginatedAccounts = accounts.slice(startIndex, endIndex);
+        
+        return { 
+            data: paginatedAccounts, 
+            total: accounts.length,
+            pagination: {
+                currentPage: page,
+                totalPages: Math.ceil(accounts.length / limit),
+                total: accounts.length,
+                from: startIndex + 1,
+                to: Math.min(endIndex, accounts.length),
+                hasNext: endIndex < accounts.length,
+                hasPrev: page > 1
+            }
+        };
     },
 
     async getAccountById(id) {

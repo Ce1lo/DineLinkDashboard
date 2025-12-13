@@ -26,6 +26,6 @@ export const TablesService = {
     },
 
     async uploadViewImage(id, file, description = '') {
-        return { success: true, message: 'Đã upload ảnh', imageUrl: '/assets/images/table-view.jpg' };
+        return MockHandlers.uploadTableViewImage(id, file, description);
     }
 };

@@ -5,14 +5,17 @@
 import { AccountsService } from '../services/accounts.service.js';
 
 export const AccountsView = {
-    async render(App) {
+    async render(App, Router) {
+        // Get params from Router/URL to handle pagination if needed
+        const params = Router.getQueryParams(); 
         const [pending, accounts] = await Promise.all([
             AccountsService.getPending(),
-            AccountsService.getList()
+            AccountsService.getList(params)
         ]);
         await App.renderPage('accounts', { 
             pending: pending.data, 
-            accounts: accounts.data 
+            accounts: accounts.data,
+            pagination: accounts.pagination // Pass pagination data if available
         }, true);
         this.bindEvents(App);
     },
@@ -31,6 +34,21 @@ export const AccountsView = {
                 btn.classList.add('active', 'border-primary-500', 'text-primary-600');
                 btn.classList.remove('border-transparent', 'text-stone-500');
             }
+        };
+
+        window.changePage = (page) => {
+            // Determine which tab is active (pending or staff) to paginate correctly?
+            // Actually, list logic might usually be for the main list (staff). 
+            // If Pending list needs pagination, it's complex. 
+            // Assuming pagination is for the Staff list as usually "Accounts" refers to existing staff.
+            // But let's check templates: Pagination block was added to main body (Staff tab part?)
+            // In accounts.hbs, pagination block is inside #staff-panel div (inferred by placement after table)
+            // So we just update page params. 
+            // AccountsService.getList(params) likely handles ?page=...
+            
+            const params = new URLSearchParams(window.location.hash.split('?')[1] || '');
+            params.set('page', page);
+            Router.navigate(`/accounts?${params.toString()}`);
         };
         
         document.querySelectorAll('[data-action="approve-account"]').forEach(btn => {
@@ -144,7 +162,35 @@ export const AccountsView = {
                 : await AccountsService.activate(accountId);
             if (result.success) {
                 App.showSuccess(`Đã ${action} tài khoản!`);
-                App.reload();
+                
+                // Update DOM directly instead of full reload
+                const button = document.querySelector(`button[data-account-id="${accountId}"][data-action="toggle-account"]`);
+                if (button) {
+                    const newStatus = isActive ? 'INACTIVE' : 'ACTIVE';
+                    button.dataset.currentStatus = newStatus;
+                    
+                    // Update button appearance
+                    if (newStatus === 'ACTIVE') {
+                        button.innerHTML = '<i class="fa-solid fa-lock"></i><span>Khoá</span>';
+                        button.title = 'Khoá';
+                    } else {
+                        button.innerHTML = '<i class="fa-solid fa-unlock"></i><span>Mở</span>';
+                        button.title = 'Mở khoá';
+                    }
+                    
+                    // Update status badge in the same row
+                    const row = button.closest('tr');
+                    if (row) {
+                        const statusCell = row.cells[2]; // Status is 3rd column
+                        if (statusCell) {
+                            if (newStatus === 'ACTIVE') {
+                                statusCell.innerHTML = '<span class="badge badge-confirmed">Hoạt động</span>';
+                            } else {
+                                statusCell.innerHTML = '<span class="badge badge-no-show">Tạm khoá</span>';
+                            }
+                        }
+                    }
+                }
             }
         } catch (error) {
             App.showError('Có lỗi xảy ra. Vui lòng thử lại.');

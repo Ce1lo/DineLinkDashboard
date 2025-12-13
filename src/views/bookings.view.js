@@ -65,6 +65,17 @@ export const BookingsView = {
             });
         });
 
+        // No-show booking
+        document.querySelectorAll('[data-action="noShowBooking"]').forEach(btn => {
+            btn.addEventListener('click', async (e) => {
+                e.stopPropagation();
+                const bookingId = btn.dataset.id;
+                if (confirm('Xác nhận khách không đến?')) {
+                    await this.handleBookingAction('noshow', bookingId, App);
+                }
+            });
+        });
+
         // Assign table
         document.querySelectorAll('[data-action="assignTable"]').forEach(btn => {
             btn.addEventListener('click', (e) => {

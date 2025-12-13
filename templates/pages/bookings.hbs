@@ -69,20 +69,20 @@
         <table class="data-table">
             <thead>
                 <tr>
-                    <th>Mã</th>
+                    <th class="text-center">Mã</th>
                     <th>Khách hàng</th>
                     <th>Số người</th>
                     <th>Thời gian</th>
-                    <th>Bàn</th>
-                    <th>Trạng thái</th>
-                    <th>Cọc</th>
+                    <th class="text-center">Bàn</th>
+                    <th class="text-center">Trạng thái</th>
+                    <th class="text-center">Cọc</th>
                     <th class="text-right">Thao tác</th>
                 </tr>
             </thead>
             <tbody>
                 {{#each data}}
                 <tr class="animate-fade-in" style="animation-delay: {{@index}}0ms">
-                    <td>
+                    <td class="text-center">
                         <code class="bg-stone-100 px-2 py-1 rounded text-sm font-mono font-bold">{{code}}</code>
                     </td>
                     <td>
@@ -106,7 +106,7 @@
                         <p class="font-bold text-stone-900">{{formatTime datetime}}</p>
                         <p class="text-sm text-stone-500">{{formatDate datetime}}</p>
                     </td>
-                    <td>
+                    <td class="text-center">
                         {{#if tableName}}
                         <span class="inline-flex items-center px-2.5 py-1 bg-stone-100 text-stone-700 rounded-lg text-sm font-bold">
                             {{tableName}}
@@ -115,7 +115,7 @@
                         <span class="text-stone-400">—</span>
                         {{/if}}
                     </td>
-                    <td>
+                    <td class="text-center">
                         {{#if (eq status 'PENDING')}}
                         <span class="badge badge-pending">Chờ xác nhận</span>
                         {{else if (eq status 'CONFIRMED')}}
@@ -124,11 +124,13 @@
                         <span class="badge badge-checked-in">Đã check-in</span>
                         {{else if (eq status 'CANCELLED')}}
                         <span class="badge badge-cancelled">Đã hủy</span>
+                        {{else if (eq status 'NO_SHOW')}}
+                        <span class="badge badge-no-show">Không đến</span>
                         {{else}}
                         <span class="badge badge-no-show">{{status}}</span>
                         {{/if}}
                     </td>
-                    <td>
+                    <td class="text-center">
                         {{#if deposit}}
                         <span class="font-medium text-green-600">{{formatCurrency deposit}}</span>
                         {{else}}
@@ -136,7 +138,15 @@
                         {{/if}}
                     </td>
                     <td class="text-right">
-                        <div class="flex items-center justify-end gap-1">
+                        <div class="flex items-center justify-end gap-2">
+                            {{#if (or (eq status 'PENDING') (eq status 'CONFIRMED'))}}
+                            <button class="btn btn-sm btn-secondary text-stone-600 hover:bg-stone-200" 
+                                    data-action="noShowBooking" data-id="{{id}}" title="Khách không đến">
+                                <i class="fa-solid fa-user-slash"></i>
+                                <span>Không đến</span>
+                            </button>
+                            {{/if}}
+
                             {{#if (eq status 'PENDING')}}
                             <button class="btn btn-sm btn-success" 
                                     data-action="confirmBooking" data-id="{{id}}">
@@ -144,6 +154,7 @@
                                 <span>Xác nhận</span>
                             </button>
                             {{/if}}
+                            
                             {{#if (eq status 'CONFIRMED')}}
                             <button class="btn btn-sm btn-primary" 
                                     data-action="checkInBooking" data-id="{{id}}">
@@ -151,16 +162,12 @@
                                 <span>Check-in</span>
                             </button>
                             {{/if}}
-                            <button class="btn btn-icon btn-secondary" 
-                                    data-action="assignTable" data-id="{{id}}"
-                                    title="Gán bàn">
-                                <i class="fa-solid fa-table-cells"></i>
-                            </button>
+                            
                             {{#if (or (eq status 'PENDING') (eq status 'CONFIRMED'))}}
-                            <button class="btn btn-icon btn-outline text-red-500 hover:bg-red-50" 
-                                    data-action="cancelBooking" data-id="{{id}}"
-                                    title="Huỷ">
+                            <button class="btn btn-sm btn-outline text-red-500 hover:bg-red-50" 
+                                    data-action="cancelBooking" data-id="{{id}}">
                                 <i class="fa-solid fa-xmark"></i>
+                                <span>Huỷ</span>
                             </button>
                             {{/if}}
                         </div>
