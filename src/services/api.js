@@ -1,126 +1,31 @@
 /**
  * API Service - Shared for both mock and prod (ES6)
- * Hỗ trợ accessToken và refreshToken
+ * Không thay đổi khi toggle
  */
 import { CONFIG } from '../config.js';
 
-// Flag to prevent multiple refresh requests
-let isRefreshing = false;
-let refreshSubscribers = [];
-
-// Subscribe to token refresh
-function subscribeTokenRefresh(callback) {
-    refreshSubscribers.push(callback);
-}
-
-// Notify all subscribers when token is refreshed
-function onTokenRefreshed(newToken) {
-    refreshSubscribers.forEach(callback => callback(newToken));
-    refreshSubscribers = [];
-}
-
 export const ApiService = {
-    /**
-     * Lấy access token từ localStorage
-     */
-    getAccessToken() {
-        return localStorage.getItem(CONFIG.STORAGE_KEYS.ACCESS_TOKEN) 
-            || localStorage.getItem(CONFIG.STORAGE_KEYS.TOKEN); // Fallback for legacy
+    getToken() {
+        return localStorage.getItem(CONFIG.STORAGE_KEYS.TOKEN);
     },
 
-    /**
-     * Lấy refresh token từ localStorage
-     */
-    getRefreshToken() {
-        return localStorage.getItem(CONFIG.STORAGE_KEYS.REFRESH_TOKEN);
-    },
-
-    /**
-     * Lưu tokens vào localStorage
-     */
-    saveTokens(accessToken, refreshToken) {
-        if (accessToken) {
-            localStorage.setItem(CONFIG.STORAGE_KEYS.ACCESS_TOKEN, accessToken);
-            localStorage.setItem(CONFIG.STORAGE_KEYS.TOKEN, accessToken); // Legacy support
-        }
-        if (refreshToken) {
-            localStorage.setItem(CONFIG.STORAGE_KEYS.REFRESH_TOKEN, refreshToken);
-        }
-    },
-
-    /**
-     * Xóa tất cả tokens
-     */
-    clearTokens() {
-        localStorage.removeItem(CONFIG.STORAGE_KEYS.ACCESS_TOKEN);
-        localStorage.removeItem(CONFIG.STORAGE_KEYS.REFRESH_TOKEN);
-        localStorage.removeItem(CONFIG.STORAGE_KEYS.TOKEN);
-        localStorage.removeItem(CONFIG.STORAGE_KEYS.USER);
-    },
-
-    /**
-     * Tạo headers cho request
-     */
     getHeaders(isFormData = false) {
         const headers = {};
         if (!isFormData) {
             headers['Content-Type'] = 'application/json';
         }
-        const token = this.getAccessToken();
+        const token = this.getToken();
         if (token) {
             headers['Authorization'] = `Bearer ${token}`;
         }
         return headers;
     },
 
-    /**
-     * Build full URL
-     */
     buildUrl(endpoint) {
         return `${CONFIG.API_BASE_URL}${CONFIG.API_PREFIX}${endpoint}`;
     },
 
-    /**
-     * Refresh access token using refresh token
-     */
-    async refreshAccessToken() {
-        const refreshToken = this.getRefreshToken();
-        
-        if (!refreshToken) {
-            throw new Error('No refresh token available');
-        }
-
-        try {
-            const response = await fetch(this.buildUrl('/auth/refresh'), {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify({ refreshToken })
-            });
-
-            if (!response.ok) {
-                throw new Error('Token refresh failed');
-            }
-
-            const data = await response.json();
-            
-            // Lưu tokens mới
-            this.saveTokens(data.accessToken, data.refreshToken);
-            
-            return data.accessToken;
-        } catch (error) {
-            // Refresh thất bại -> đăng xuất
-            this.clearTokens();
-            window.location.pathname = '/login';
-            throw error;
-        }
-    },
-
-    /**
-     * Main request function với auto-refresh token
-     */
-    async request(endpoint, options = {}, retryCount = 0) {
+    async request(endpoint, options = {}) {
         const url = this.buildUrl(endpoint);
         const isFormData = options.body instanceof FormData;
         
@@ -132,54 +37,14 @@ export const ApiService = {
             }
         };
 
-        try {
-            const response = await fetch(url, fetchOptions);
-            
-            // Nếu 401 Unauthorized và chưa retry
-            if (response.status === 401 && retryCount === 0) {
-                // Nếu đang refresh, đợi kết quả
-                if (isRefreshing) {
-                    return new Promise((resolve, reject) => {
-                        subscribeTokenRefresh(async (newToken) => {
-                            try {
-                                fetchOptions.headers['Authorization'] = `Bearer ${newToken}`;
-                                const retryResponse = await fetch(url, fetchOptions);
-                                if (!retryResponse.ok) {
-                                    throw new Error(`HTTP ${retryResponse.status}`);
-                                }
-                                resolve(await retryResponse.json());
-                            } catch (err) {
-                                reject(err);
-                            }
-                        });
-                    });
-                }
-
-                // Bắt đầu refresh token
-                isRefreshing = true;
-                
-                try {
-                    const newToken = await this.refreshAccessToken();
-                    isRefreshing = false;
-                    onTokenRefreshed(newToken);
-                    
-                    // Retry request với token mới
-                    return this.request(endpoint, options, retryCount + 1);
-                } catch (refreshError) {
-                    isRefreshing = false;
-                    throw refreshError;
-                }
-            }
-            
-            if (!response.ok) {
-                const error = await response.json().catch(() => ({}));
-                throw new Error(error.message || `HTTP ${response.status}`);
-            }
-            
-            return await response.json();
-        } catch (error) {
-            throw error;
+        const response = await fetch(url, fetchOptions);
+        
+        if (!response.ok) {
+            const error = await response.json().catch(() => ({}));
+            throw new Error(error.message || `HTTP ${response.status}`);
         }
+        
+        return await response.json();
     },
 
     async get(endpoint) {

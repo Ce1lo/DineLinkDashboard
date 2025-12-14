@@ -9,40 +9,112 @@ import { ApiService } from './api.js';
 export const AuthService = {
     /**
      * Đăng nhập - lưu cả accessToken và refreshToken
+     * BE Response format: { success, message, data: { account, restaurant, tokens: { accessToken, refreshToken } } }
      */
     async login(email, password) {
         const response = await ApiService.post('/auth/login', { email, password });
-        if (response.accessToken || response.token) {
-            // Lưu tokens - hỗ trợ cả format mới và cũ
+        console.log('Login response:', response); // Debug log
+        
+        // BE wrap response trong { success, data: {...} }
+        const resData = response.data || response;
+        const tokens = resData.tokens || {};
+        
+        if (tokens.accessToken || resData.accessToken || resData.token) {
+            // Lưu tokens
             ApiService.saveTokens(
-                response.accessToken || response.token,
-                response.refreshToken
+                tokens.accessToken || resData.accessToken || resData.token,
+                tokens.refreshToken || resData.refreshToken
             );
-            localStorage.setItem(CONFIG.STORAGE_KEYS.USER, JSON.stringify(response.user));
+            // Lưu user info (account từ BE)
+            const user = resData.account || resData.user;
+            if (user) {
+                // Thêm restaurant info vào user
+                user.restaurant = resData.restaurant;
+                localStorage.setItem(CONFIG.STORAGE_KEYS.USER, JSON.stringify(user));
+            }
         }
-        return response;
+        
+        // Return format cho FE kiểm tra
+        const finalUser = resData.account || resData.user || {};
+        if (finalUser) {
+            // Map snake_case to camelCase for FE consistency
+            finalUser.name = finalUser.display_name || finalUser.full_name || finalUser.name;
+            finalUser.avatar = finalUser.avatar_url || finalUser.avatar;
+            // Ensure restaurant info is attached if available
+            if (resData.restaurant) {
+                finalUser.restaurant = resData.restaurant;
+            }
+            // Update storage with mapped user
+            localStorage.setItem(CONFIG.STORAGE_KEYS.USER, JSON.stringify(finalUser));
+        }
+
+        return {
+            ...resData,
+            token: tokens.accessToken || resData.accessToken || resData.token,
+            accessToken: tokens.accessToken || resData.accessToken,
+            user: finalUser
+        };
     },
 
     /**
      * Đăng ký chủ nhà hàng - nhận token ngay sau đăng ký
+     * BE Response format: { success, message, data: { account, restaurant, tokens } }
      */
     async registerOwner(data) {
-        const response = await ApiService.post('/auth/register-owner', data);
-        if (response.accessToken || response.token) {
+        // Transform FE field names to match BE format
+        const payload = {
+            email: data.email,
+            password: data.password,
+            confirm_password: data.confirmPassword,
+            role: 'OWNER',
+            full_name: data.name,
+            restaurant_name: data.restaurantName,
+            restaurant_address: data.address,
+            restaurant_phone: data.phone
+        };
+        
+        const response = await ApiService.post('/auth/register/owner', payload);
+        const resData = response.data || response;
+        const tokens = resData.tokens || {};
+        
+        if (tokens.accessToken || resData.accessToken || resData.token) {
             ApiService.saveTokens(
-                response.accessToken || response.token,
-                response.refreshToken
+                tokens.accessToken || resData.accessToken || resData.token,
+                tokens.refreshToken || resData.refreshToken
             );
-            localStorage.setItem(CONFIG.STORAGE_KEYS.USER, JSON.stringify(response.user));
+            const user = resData.account || resData.user;
+            if (user) {
+                user.restaurant = resData.restaurant;
+                localStorage.setItem(CONFIG.STORAGE_KEYS.USER, JSON.stringify(user));
+            }
         }
-        return response;
+        
+        return {
+            ...resData,
+            success: response.success !== false,
+            token: tokens.accessToken || resData.accessToken || resData.token,
+            user: resData.account || resData.user
+        };
     },
 
     /**
      * Đăng ký nhân viên - không nhận token, chờ duyệt
      */
     async registerStaff(data) {
-        return ApiService.post('/auth/register-staff', data);
+        // Transform FE field names to match BE format
+        const payload = {
+            email: data.email,
+            password: data.password,
+            confirm_password: data.confirmPassword,
+            role: 'STAFF',
+            full_name: data.name,
+            invite_code: data.restaurantCode
+        };
+        const response = await ApiService.post('/auth/register/staff', payload);
+        return {
+            ...response,
+            success: response.success !== false
+        };
     },
 
     /**

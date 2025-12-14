@@ -7,8 +7,13 @@ import { ReviewsService } from '../services/reviews.service.js';
 export const ReviewsView = {
     async render(App, Router) {
         const params = Router.getQueryParams();
-        const data = await ReviewsService.getList(params);
-        await App.renderPage('reviews', data, true);
+        const result = await ReviewsService.getList(params);
+        // Normalize data
+        const reviewsData = result.data || {};
+        const reviews = Array.isArray(reviewsData) ? reviewsData : (reviewsData.items || []);
+        const pagination = reviewsData.pagination || {};
+
+        await App.renderPage('reviews', { data: reviews, pagination, total: pagination.total || reviews.length }, true);
         this.bindEvents(App, Router);
     },
 

@@ -210,7 +210,7 @@ export const AuthView = {
             App.showLoading(form.querySelector('button[type="submit"]'));
             const result = await AuthService.login(email, password);
             
-            if (result.token) {
+            if (result.token || result.accessToken) {
                 if (rememberMe) {
                     localStorage.setItem(CONFIG.STORAGE_KEYS.REMEMBER_ME, 'true');
                 }
@@ -277,7 +277,17 @@ export const AuthView = {
                 window.location.pathname = '/register-pending';
             }
         } catch (error) {
-            App.showError('Đăng ký thất bại. Vui lòng thử lại.');
+            let message = error.message || 'Đăng ký thất bại. Vui lòng thử lại.';
+            // Handle Joi validation errors
+            // Backend returns: { success: false, error: { details: [...] } }
+            const details = error.data?.error?.details || error.data?.details;
+            
+            if (details && Array.isArray(details)) {
+                message = details
+                    .map(d => d.message.replace(/"/g, '')) // Remove quotes
+                    .join('<br>');
+            }
+            App.showError(message);
         } finally {
             App.hideLoading(form.querySelector('button[type="submit"]'));
         }

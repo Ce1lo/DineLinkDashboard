@@ -8,12 +8,8 @@ export const AccountsService = {
         return MockHandlers.getPendingAccounts();
     },
 
-    async getList(params) {
-        return MockHandlers.getAccounts(params);
-    },
-
-    async getById(id) {
-        return MockHandlers.getAccountById(id);
+    async getList() {
+        return MockHandlers.getAccounts();
     },
 
     async approve(id) {

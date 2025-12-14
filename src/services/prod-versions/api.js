@@ -172,8 +172,11 @@ export const ApiService = {
             }
             
             if (!response.ok) {
-                const error = await response.json().catch(() => ({}));
-                throw new Error(error.message || `HTTP ${response.status}`);
+                const errorData = await response.json().catch(() => ({}));
+                const errorMessage = errorData.error?.message || errorData.message || `HTTP ${response.status}`;
+                const error = new Error(errorMessage);
+                error.data = errorData; // Attach full error data
+                throw error;
             }
             
             return await response.json();

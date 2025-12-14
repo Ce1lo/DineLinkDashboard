@@ -184,8 +184,18 @@ const App = {
                         notificationsList = notifResult;
                         sidebarData.unreadCount = notifResult.filter(n => !n.isRead).length;
                     } else if (notifResult && notifResult.data) {
-                        notificationsList = notifResult.data;
-                        sidebarData.unreadCount = notifResult.data.filter(n => !n.isRead).length;
+                        // Handle { data: { items: [] } } or { data: [] }
+                        const nData = notifResult.data;
+                        if (Array.isArray(nData)) {
+                             notificationsList = nData;
+                             sidebarData.unreadCount = nData.filter(n => !n.isRead).length;
+                        } else if (nData.items) {
+                             notificationsList = nData.items;
+                             // Use unread_count from API if available, else count manually
+                             sidebarData.unreadCount = (typeof nData.unread_count !== 'undefined') 
+                                ? nData.unread_count 
+                                : nData.items.filter(n => !n.isRead).length;
+                        }
                     } else if (notifResult && typeof notifResult.unreadCount !== 'undefined') {
                         sidebarData.unreadCount = notifResult.unreadCount;
                     } else {
@@ -197,7 +207,10 @@ const App = {
                     // Fetch booking counts for sidebar badge
                     try {
                         const bookingsResult = await BookingsService.getList();
-                        const bookings = bookingsResult.data || [];
+                        // BE data struct: { items: [...] }
+                        const bookingsData = bookingsResult.data || {};
+                        const bookings = Array.isArray(bookingsData) ? bookingsData : (bookingsData.items || []);
+                        
                         sidebarData.pendingBookings = bookings.filter(b => b.status === 'PENDING').length;
                         sidebarData.confirmedBookings = bookings.filter(b => b.status === 'CONFIRMED').length;
                     } catch (e) { console.warn('Could not fetch bookings:', e); }
@@ -205,16 +218,21 @@ const App = {
                     // Fetch available tables count
                     try {
                         const tablesResult = await TablesService.getList();
-                        const tables = tablesResult.data || [];
+                        // BE data struct: { items: [...] }
+                        const tablesData = tablesResult.data || {};
+                        const tables = Array.isArray(tablesData) ? tablesData : (tablesData.items || []);
+                        
                         sidebarData.availableTables = tables.filter(t => t.status === 'ACTIVE').length;
                     } catch (e) { console.warn('Could not fetch tables:', e); }
                     
-                    // Fetch pending staff count
-                    try {
-                        const pendingResult = await AccountsService.getPending();
-                        const pending = pendingResult.data || [];
-                        sidebarData.pendingStaff = pending.length;
-                    } catch (e) { console.warn('Could not fetch pending staff:', e); }
+                    // Fetch pending staff count (Only for OWNER)
+                    if (user && user.role === 'OWNER') {
+                        try {
+                            const pendingResult = await AccountsService.getPending();
+                            const pending = pendingResult.data || [];
+                            sidebarData.pendingStaff = pending.length;
+                        } catch (e) { console.warn('Could not fetch pending staff:', e); }
+                    }
                 } catch (e) {
                     console.warn('Could not fetch sidebar data:', e);
                     sidebarData.unreadCount = 0;

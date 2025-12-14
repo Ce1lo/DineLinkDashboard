@@ -10,8 +10,13 @@ import { AccountsService } from '../services/accounts.service.js';
 export const NotificationsView = {
     async render(App, Router) {
         const params = Router.getQueryParams();
-        const data = await NotificationsService.getList(params);
-        await App.renderPage('notifications', data, true);
+        const result = await NotificationsService.getList(params);
+        // Normalize data
+        const notifData = result.data || {};
+        const notifications = Array.isArray(notifData) ? notifData : (notifData.items || []);
+        const pagination = notifData.pagination || {};
+
+        await App.renderPage('notifications', { data: notifications, pagination }, true);
         this.bindEvents(App, Router);
     },
 
@@ -223,8 +228,15 @@ export const NotificationsView = {
         try {
             switch (type) {
                 case 'BOOKING_CREATED':
+                case 'BOOKING_UPDATED': // Handle update
                 case 'BOOKING_CONFIRMED':
                 case 'BOOKING_CANCELLED':
+                case 'BOOKING_CHECKED_IN':
+                case 'BOOKING_NO_SHOW':
+                case 'BOOKING_REMINDER':
+                case 'BOOKING_PAYMENT_SUCCESS':
+                case 'BOOKING_PAYMENT_FAILED':
+                case 'BOOKING_REFUND_SUCCESS':
                     titleEl.textContent = 'Chi tiết đặt bàn';
                     await this.renderBookingDetailContent(data.bookingId, contentEl, footerEl, App, Router);
                     break;
@@ -234,9 +246,9 @@ export const NotificationsView = {
                     await this.renderReviewDetailContent(data.reviewId, contentEl, footerEl, App);
                     break;
                     
-                case 'MEMBER_PENDING':
-                case 'MEMBER_APPROVAL':
-                    titleEl.textContent = 'Yêu cầu duyệt nhân viên';
+                case 'STAFF_REGISTERED': // Replaces MEMBER_PENDING properly
+                case 'STAFF_STATUS_CHANGED':
+                    titleEl.textContent = 'Thông tin nhân viên';
                     await this.renderMemberApprovalContent(data.accountId, contentEl, footerEl, App);
                     break;
                     

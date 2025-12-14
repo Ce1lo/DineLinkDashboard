@@ -10,8 +10,12 @@ export const TablesView = {
      * @param {Object} App - Reference đến App object
      */
     async render(App) {
-        const data = await TablesService.getList();
-        await App.renderPage('tables', data, true);
+        const result = await TablesService.getList();
+        // Normalize data: result.data can be Array or { items: [] }
+        const tablesData = result.data || {};
+        const tables = Array.isArray(tablesData) ? tablesData : (tablesData.items || []);
+        
+        await App.renderPage('tables', { data: tables }, true);
         this.bindEvents(App);
     },
 
@@ -121,20 +125,53 @@ export const TablesView = {
      */
     async handleAddTable(form, App) {
         const formData = new FormData(form);
+        
+        // Extract file separately
+        const imageFile = formData.get('viewImage');
+        const hasImage = imageFile && imageFile.size > 0;
+        
+        // Prepare JSON payload
         const data = Object.fromEntries(formData.entries());
         data.capacity = parseInt(data.capacity);
+        
+        // Remove file object from JSON payload to avoid validation error
+        delete data.viewImage;
 
         try {
             App.showLoading(form.querySelector('button[type="submit"]'));
             const result = await TablesService.create(data);
+            
             if (result.success) {
+                // Upload image if selected
+                if (hasImage && result.data?.id) {
+                    try {
+                        await TablesService.uploadViewImage(result.data.id, imageFile);
+                    } catch (uploadError) {
+                        console.warn('Upload image failed:', uploadError);
+                        App.showWarning('Tạo bàn thành công nhưng tải ảnh thất bại.');
+                        window.closeModal('tableFormModal');
+                        form.reset();
+                        App.reload();
+                        return;
+                    }
+                }
+                
                 App.showSuccess('Thêm bàn thành công!');
                 window.closeModal('tableFormModal');
                 form.reset();
+                const preview = document.getElementById('viewImagePreview');
+                if (preview) preview.innerHTML = '';
                 App.reload();
             }
         } catch (error) {
-            App.showError('Thêm bàn thất bại. Vui lòng thử lại.');
+            let message = error.message || 'Thêm bàn thất bại. Vui lòng thử lại.';
+            const details = error.data?.error?.details || error.data?.details;
+            if (details && Array.isArray(details)) {
+                message = details
+                    .map(d => d.message.replace(/"/g, ''))
+                    .join('<br>');
+            }
+            App.showError(message);
         } finally {
             App.hideLoading(form.querySelector('button[type="submit"]'));
         }
@@ -145,21 +182,50 @@ export const TablesView = {
      */
     async handleEditTable(form, App) {
         const formData = new FormData(form);
+        
+        // Extract file separately
+        const imageFile = formData.get('viewImage');
+        const hasImage = imageFile && imageFile.size > 0;
+
         const data = Object.fromEntries(formData.entries());
         const tableId = data.tableId;
         delete data.tableId;
         data.capacity = parseInt(data.capacity);
+        
+        // Remove file from payload
+        delete data.viewImage;
 
         try {
             App.showLoading(form.querySelector('button[type="submit"]'));
             const result = await TablesService.update(tableId, data);
+            
             if (result.success) {
+                // Upload image if selected
+                if (hasImage) {
+                    try {
+                        await TablesService.uploadViewImage(tableId, imageFile);
+                    } catch (uploadError) {
+                         console.warn('Upload image failed:', uploadError);
+                         App.showWarning('Cập nhật bàn thành công nhưng tải ảnh thất bại.');
+                         window.closeModal('tableFormModal');
+                         App.reload();
+                         return;
+                    }
+                }
+
                 App.showSuccess('Cập nhật bàn thành công!');
                 window.closeModal('tableFormModal');
                 App.reload();
             }
         } catch (error) {
-            App.showError('Cập nhật bàn thất bại. Vui lòng thử lại.');
+            let message = error.message || 'Cập nhật bàn thất bại. Vui lòng thử lại.';
+            const details = error.data?.error?.details || error.data?.details;
+            if (details && Array.isArray(details)) {
+                message = details
+                    .map(d => d.message.replace(/"/g, ''))
+                    .join('<br>');
+            }
+            App.showError(message);
         } finally {
             App.hideLoading(form.querySelector('button[type="submit"]'));
         }

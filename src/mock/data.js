@@ -4,7 +4,42 @@
  * TEST ACCOUNTS:
  * - admin@restaurant.com / 123456 (OWNER)
  * - staff@restaurant.com / 123456 (STAFF)
+ * 
+ * NOTE: Dữ liệu được lưu vào localStorage để persist qua các lần reload
  */
+
+// ==================== STORAGE KEYS ====================
+const STORAGE_KEYS = {
+    RESTAURANTS: 'mock_restaurants',
+    ACCOUNTS: 'mock_restaurant_accounts',
+    TABLES: 'mock_restaurant_tables',
+    BOOKINGS: 'mock_bookings',
+    REVIEWS: 'mock_reviews',
+    NOTIFICATIONS: 'mock_notifications',
+    IMAGES: 'mock_restaurant_images'
+};
+
+// ==================== HELPER: Load from localStorage or use default ====================
+function loadFromStorage(key, defaultData) {
+    try {
+        const stored = localStorage.getItem(key);
+        if (stored) {
+            return JSON.parse(stored);
+        }
+    } catch (e) {
+        console.warn(`Failed to load ${key} from localStorage:`, e);
+    }
+    return defaultData;
+}
+
+// ==================== HELPER: Save to localStorage ====================
+function saveToStorage(key, data) {
+    try {
+        localStorage.setItem(key, JSON.stringify(data));
+    } catch (e) {
+        console.warn(`Failed to save ${key} to localStorage:`, e);
+    }
+}
 
 // ==================== USERS (Khách hàng đặt bàn) ====================
 const _users = [
@@ -653,15 +688,16 @@ const _restaurantImages = [
 ];
 
 // ==================== MOCK DATA EXPORT ====================
+// Load data from localStorage or use defaults
 export const MOCK_DATA = {
     users: _users,
-    restaurants: _restaurants,
-    restaurantAccounts: _restaurantAccounts,
-    restaurantTables: _restaurantTables,
-    bookings: _bookings,
-    reviews: _reviews,
-    notifications: _notifications,
-    restaurantImages: _restaurantImages,
+    restaurants: loadFromStorage(STORAGE_KEYS.RESTAURANTS, _restaurants),
+    restaurantAccounts: loadFromStorage(STORAGE_KEYS.ACCOUNTS, _restaurantAccounts),
+    restaurantTables: loadFromStorage(STORAGE_KEYS.TABLES, _restaurantTables),
+    bookings: loadFromStorage(STORAGE_KEYS.BOOKINGS, _bookings),
+    reviews: loadFromStorage(STORAGE_KEYS.REVIEWS, _reviews),
+    notifications: loadFromStorage(STORAGE_KEYS.NOTIFICATIONS, _notifications),
+    restaurantImages: loadFromStorage(STORAGE_KEYS.IMAGES, _restaurantImages),
 
     // Helper: Get user by ID
     getUser(id) {
@@ -670,11 +706,53 @@ export const MOCK_DATA = {
 
     // Helper: Get table by ID  
     getTable(id) {
-        return _restaurantTables.find(t => t.id === id);
+        return this.restaurantTables.find(t => t.id === id);
     },
 
     // Helper: Get account by email
     getAccountByEmail(email) {
-        return _restaurantAccounts.find(a => a.email === email);
+        return this.restaurantAccounts.find(a => a.email === email);
+    },
+
+    // Save current data to localStorage
+    saveRestaurants() {
+        saveToStorage(STORAGE_KEYS.RESTAURANTS, this.restaurants);
+    },
+
+    saveAccounts() {
+        saveToStorage(STORAGE_KEYS.ACCOUNTS, this.restaurantAccounts);
+    },
+
+    saveTables() {
+        saveToStorage(STORAGE_KEYS.TABLES, this.restaurantTables);
+    },
+
+    saveBookings() {
+        saveToStorage(STORAGE_KEYS.BOOKINGS, this.bookings);
+    },
+
+    saveReviews() {
+        saveToStorage(STORAGE_KEYS.REVIEWS, this.reviews);
+    },
+
+    saveNotifications() {
+        saveToStorage(STORAGE_KEYS.NOTIFICATIONS, this.notifications);
+    },
+
+    saveImages() {
+        saveToStorage(STORAGE_KEYS.IMAGES, this.restaurantImages);
+    },
+
+    // Reset all data to defaults (clear localStorage)
+    resetAll() {
+        Object.values(STORAGE_KEYS).forEach(key => {
+            localStorage.removeItem(key);
+        });
+        console.log('🔄 Mock data reset to defaults. Please reload the page.');
     }
 };
+
+// Log mock mode
+console.log('🎭 Mock Mode: Dữ liệu được lưu vào localStorage');
+console.log('📧 Account test: admin@restaurant.com / 123456');
+console.log('🔄 Để reset dữ liệu: MOCK_DATA.resetAll() trong console');

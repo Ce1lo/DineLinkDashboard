@@ -3,13 +3,13 @@
  */
 export const CONFIG = {
   // URL gốc của Backend API
-  API_BASE_URL: "http://localhost:8207",
+  API_BASE_URL: "http://localhost:8027",
 
   // Tiền tố API cho các endpoint dashboard
   API_PREFIX: "/api/v1/dashboard",
 
   // Tự động chuyển sang mock data khi API lỗi
-  USE_MOCK: true,
+  USE_MOCK: false,
 
   // Các khóa lưu trữ trong LocalStorage
   STORAGE_KEYS: {
@@ -48,12 +48,22 @@ export const CONFIG = {
     NO_SHOW: "NO_SHOW",
   },
 
-  // Loại thông báo
+  // Loại thông báo (Match with BE constants/notification.js)
   NOTIFICATION_TYPES: {
     BOOKING_CREATED: "BOOKING_CREATED",
-    BOOKING_CONFIRMED: "BOOKING_CONFIRMED",
+    BOOKING_UPDATED: "BOOKING_UPDATED",
     BOOKING_CANCELLED: "BOOKING_CANCELLED",
+    BOOKING_CONFIRMED: "BOOKING_CONFIRMED",
+    BOOKING_CHECKED_IN: "BOOKING_CHECKED_IN",
+    BOOKING_NO_SHOW: "BOOKING_NO_SHOW",
+    BOOKING_PAYMENT_SUCCESS: "BOOKING_PAYMENT_SUCCESS",
+    BOOKING_PAYMENT_FAILED: "BOOKING_PAYMENT_FAILED",
+    BOOKING_REFUND_SUCCESS: "BOOKING_REFUND_SUCCESS",
+    BOOKING_REMINDER: "BOOKING_REMINDER",
+    STAFF_REGISTERED: "STAFF_REGISTERED",
+    STAFF_STATUS_CHANGED: "STAFF_STATUS_CHANGED",
     REVIEW_CREATED: "REVIEW_CREATED",
+    GENERIC: "GENERIC",
   },
 
   // Loại hình ảnh

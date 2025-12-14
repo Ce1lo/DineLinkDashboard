@@ -4,8 +4,29 @@
  */
 import { MOCK_DATA } from './data.js';
 
-// Current logged in user
-let _currentUser = null;
+// Current logged in user ID (persisted to localStorage)
+const CURRENT_USER_KEY = 'mock_current_user_id';
+
+function getCurrentUserId() {
+    return localStorage.getItem(CURRENT_USER_KEY);
+}
+
+function setCurrentUserId(id) {
+    if (id) {
+        localStorage.setItem(CURRENT_USER_KEY, id.toString());
+    } else {
+        localStorage.removeItem(CURRENT_USER_KEY);
+    }
+}
+
+// Get current user from MOCK_DATA using stored ID
+function getCurrentUser() {
+    const userId = getCurrentUserId();
+    if (userId) {
+        return MOCK_DATA.restaurantAccounts.find(a => a.id === parseInt(userId));
+    }
+    return null;
+}
 
 export const MockHandlers = {
     /**
@@ -32,7 +53,7 @@ export const MockHandlers = {
         }
         
         const restaurant = MOCK_DATA.restaurants[0];
-        _currentUser = account;
+        setCurrentUserId(account.id); // Persist current user ID
         
         console.log('🔐 Mock login success:', account.email);
         
@@ -67,6 +88,17 @@ export const MockHandlers = {
         const pendingBookings = allBookings.filter(b => b.status === 'PENDING');
         const confirmedBookings = allBookings.filter(b => b.status === 'CONFIRMED');
         
+        // Calculate Guests Today (mock: all confirmed/pending bookings guests)
+        const guestsToday = allBookings
+            .filter(b => b.status === 'PENDING' || b.status === 'CONFIRMED')
+            .reduce((sum, b) => sum + b.people_count, 0);
+
+        // Calculate Total Capacity
+        const totalCapacity = MOCK_DATA.restaurantTables.reduce((sum, t) => sum + t.capacity, 0);
+        
+        // Calculate Occcupancy (Guests / Capacity)
+        const tableOccupancy = totalCapacity > 0 ? Math.round((guestsToday / totalCapacity) * 100) : 0;
+
         // Build upcomingBookings with joined data - lấy tất cả để demo
         const upcomingBookings = allBookings
             .filter(b => b.status === 'PENDING' || b.status === 'CONFIRMED')
@@ -90,11 +122,12 @@ export const MockHandlers = {
         return {
             kpis: {
                 bookingsToday: allBookings.length,
-                guestsToday: allBookings.reduce((sum, b) => sum + b.people_count, 0),
+                guestsToday: guestsToday,
                 pendingBookings: pendingBookings.length,
-                tableOccupancy: Math.round((confirmedBookings.length / MOCK_DATA.restaurantTables.length) * 100)
+                tableOccupancy: tableOccupancy
             },
-            upcomingBookings
+            upcomingBookings,
+            restaurant: MOCK_DATA.restaurants[0]
         };
     },
 
@@ -143,6 +176,7 @@ export const MockHandlers = {
         await this.delay();
         const booking = MOCK_DATA.bookings.find(b => b.id === parseInt(id));
         if (booking) booking.status = 'CONFIRMED';
+        MOCK_DATA.saveBookings();
         return { success: true, message: 'Đã xác nhận booking' };
     },
 
@@ -150,6 +184,7 @@ export const MockHandlers = {
         await this.delay();
         const booking = MOCK_DATA.bookings.find(b => b.id === parseInt(id));
         if (booking) booking.status = 'CANCELLED';
+        MOCK_DATA.saveBookings();
         return { success: true, message: 'Đã hủy booking' };
     },
 
@@ -157,6 +192,7 @@ export const MockHandlers = {
         await this.delay();
         const booking = MOCK_DATA.bookings.find(b => b.id === parseInt(id));
         if (booking) booking.status = 'CHECKED_IN';
+        MOCK_DATA.saveBookings();
         return { success: true, message: 'Đã check-in' };
     },
 
@@ -164,6 +200,7 @@ export const MockHandlers = {
         await this.delay();
         const booking = MOCK_DATA.bookings.find(b => b.id === parseInt(id));
         if (booking) booking.status = 'NO_SHOW';
+        MOCK_DATA.saveBookings();
         return { success: true, message: 'Đã đánh dấu no-show' };
     },
 
@@ -171,6 +208,7 @@ export const MockHandlers = {
         await this.delay();
         const booking = MOCK_DATA.bookings.find(b => b.id === parseInt(bookingId));
         if (booking) booking.table_id = parseInt(tableId);
+        MOCK_DATA.saveBookings();
         return { success: true, message: 'Đã gán bàn' };
     },
 
@@ -204,7 +242,12 @@ export const MockHandlers = {
             view_note: null
         };
         MOCK_DATA.restaurantTables.push(newTable);
-        return { success: true, message: 'Đã tạo bàn mới', id: newId };
+        MOCK_DATA.saveTables();
+        return { 
+            success: true, 
+            message: 'Đã tạo bàn mới', 
+            data: { id: newId, ...newTable } 
+        };
     },
 
     async updateTable(id, data) {
@@ -216,6 +259,7 @@ export const MockHandlers = {
             if (data.area || data.location) table.location = data.area || data.location;
             if (data.status) table.status = data.status;
         }
+        MOCK_DATA.saveTables();
         return { success: true, message: 'Đã cập nhật bàn' };
     },
 
@@ -223,6 +267,7 @@ export const MockHandlers = {
         await this.delay();
         const index = MOCK_DATA.restaurantTables.findIndex(t => t.id === parseInt(id));
         if (index > -1) MOCK_DATA.restaurantTables.splice(index, 1);
+        MOCK_DATA.saveTables();
         return { success: true, message: 'Đã xóa bàn' };
     },
 
@@ -270,6 +315,7 @@ export const MockHandlers = {
         await this.delay();
         const index = MOCK_DATA.restaurantImages.findIndex(i => i.id === parseInt(id));
         if (index > -1) MOCK_DATA.restaurantImages.splice(index, 1);
+        MOCK_DATA.saveImages();
         return { success: true, message: 'Đã xóa ảnh' };
     },
 
@@ -278,6 +324,7 @@ export const MockHandlers = {
         MOCK_DATA.restaurantImages.forEach(i => i.is_primary = false);
         const image = MOCK_DATA.restaurantImages.find(i => i.id === parseInt(id));
         if (image) image.is_primary = true;
+        MOCK_DATA.saveImages();
         return { success: true, message: 'Đã đặt làm ảnh chính' };
     },
 
@@ -367,6 +414,7 @@ export const MockHandlers = {
         await this.delay();
         const review = MOCK_DATA.reviews.find(r => r.id === parseInt(id));
         if (review) review.owner_reply = reply;
+        MOCK_DATA.saveReviews();
         return { success: true, message: 'Đã gửi phản hồi' };
     },
 
@@ -374,6 +422,7 @@ export const MockHandlers = {
         await this.delay();
         const review = MOCK_DATA.reviews.find(r => r.id === parseInt(id));
         if (review) review.status = 'HIDDEN';
+        MOCK_DATA.saveReviews();
         return { success: true, message: 'Đã ẩn đánh giá' };
     },
 
@@ -381,6 +430,7 @@ export const MockHandlers = {
         await this.delay();
         const review = MOCK_DATA.reviews.find(r => r.id === parseInt(id));
         if (review) review.status = 'VISIBLE';
+        MOCK_DATA.saveReviews();
         return { success: true, message: 'Đã hiển thị đánh giá' };
     },
 
@@ -459,6 +509,7 @@ export const MockHandlers = {
             notification.is_read = true;
             notification.read_at = new Date().toISOString();
         }
+        MOCK_DATA.saveNotifications();
         return { success: true };
     },
 
@@ -468,6 +519,7 @@ export const MockHandlers = {
             n.is_read = true;
             n.read_at = new Date().toISOString();
         });
+        MOCK_DATA.saveNotifications();
         return { success: true };
     },
 
@@ -476,13 +528,15 @@ export const MockHandlers = {
     async getRestaurantInfo() {
         await this.delay();
         const r = MOCK_DATA.restaurants[0];
+        // Handle tags whether it's string or array
+        const tags = Array.isArray(r.tags) ? r.tags : (r.tags ? r.tags.split(',') : []);
         return {
             id: r.id,
             name: r.name,
             address: r.address,
             phone: r.phone,
             description: r.description,
-            tags: r.tags.split(','),
+            tags: tags,
             requireDeposit: r.require_deposit,
             defaultDeposit: r.default_deposit_amount,
             averageRating: r.average_rating,
@@ -502,6 +556,8 @@ export const MockHandlers = {
             require_deposit: data.requireDeposit !== undefined ? data.requireDeposit === 'on' : restaurant.require_deposit,
             default_deposit_amount: data.defaultDeposit ? parseInt(data.defaultDeposit) : restaurant.default_deposit_amount
         });
+        // Persist to localStorage
+        MOCK_DATA.saveRestaurants();
         return { success: true, message: 'Đã cập nhật thông tin nhà hàng' };
     },
 
@@ -584,6 +640,7 @@ export const MockHandlers = {
         await this.delay();
         const account = MOCK_DATA.restaurantAccounts.find(a => a.id === parseInt(id));
         if (account) account.status = 'ACTIVE';
+        MOCK_DATA.saveAccounts();
         return { success: true, message: 'Đã duyệt tài khoản' };
     },
 
@@ -591,6 +648,7 @@ export const MockHandlers = {
         await this.delay();
         const account = MOCK_DATA.restaurantAccounts.find(a => a.id === parseInt(id));
         if (account) account.status = 'REJECTED';
+        MOCK_DATA.saveAccounts();
         return { success: true, message: 'Đã từ chối tài khoản' };
     },
 
@@ -598,6 +656,7 @@ export const MockHandlers = {
         await this.delay();
         const account = MOCK_DATA.restaurantAccounts.find(a => a.id === parseInt(id));
         if (account) account.status = status;
+        MOCK_DATA.saveAccounts();
         return { success: true, message: 'Đã cập nhật trạng thái' };
     },
 
@@ -605,6 +664,7 @@ export const MockHandlers = {
         await this.delay();
         const account = MOCK_DATA.restaurantAccounts.find(a => a.id === parseInt(id));
         if (account) account.role = role;
+        MOCK_DATA.saveAccounts();
         return { success: true, message: 'Đã cập nhật vai trò' };
     },
 
@@ -612,7 +672,7 @@ export const MockHandlers = {
     
     async getProfile() {
         await this.delay();
-        const account = _currentUser || MOCK_DATA.restaurantAccounts[0];
+        const account = getCurrentUser() || MOCK_DATA.restaurantAccounts[0];
         const restaurant = MOCK_DATA.restaurants[0];
         return {
             id: account.id,
@@ -627,8 +687,10 @@ export const MockHandlers = {
 
     async updateProfile(data) {
         await this.delay();
-        const account = _currentUser || MOCK_DATA.restaurantAccounts[0];
+        const account = getCurrentUser() || MOCK_DATA.restaurantAccounts[0];
         if (data.name) account.full_name = data.name;
+        // Persist to localStorage
+        MOCK_DATA.saveAccounts();
         return { 
             success: true, 
             message: 'Đã cập nhật thông tin',
@@ -650,7 +712,3 @@ export const MockHandlers = {
         return { success: true, message: 'Đã đổi mật khẩu' };
     }
 };
-
-// Console log for mock mode
-console.log('🎭 Mock Mode: Đang sử dụng dữ liệu giả lập');
-console.log('📧 Account test: admin@restaurant.com / 123456');

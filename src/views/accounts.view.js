@@ -12,10 +12,21 @@ export const AccountsView = {
             AccountsService.getPending(),
             AccountsService.getList(params)
         ]);
+        // Normalize data
+        const pendingData = pending.data || {};
+        const accountsData = accounts.data || {};
+        
+        const pendingList = Array.isArray(pendingData) ? pendingData : (pendingData.items || []);
+        let accountsList = Array.isArray(accountsData) ? accountsData : (accountsData.items || []);
+        
+        // Filter out pending invites from the main list to avoid duplication/locked status confusion
+        accountsList = accountsList.filter(s => s.status !== 'INVITED' && s.status !== 'PENDING');
+        const pagination = accountsData.pagination || {};
+
         await App.renderPage('accounts', { 
-            pending: pending.data, 
-            accounts: accounts.data,
-            pagination: accounts.pagination // Pass pagination data if available
+            pending: pendingList, 
+            accounts: accountsList,
+            pagination
         }, true);
         this.bindEvents(App);
     },

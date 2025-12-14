@@ -12,9 +12,17 @@ export const BookingsView = {
      */
     async render(App, Router) {
         const params = Router.getQueryParams();
-        const data = await BookingsService.getList(params);
-        const tables = await TablesService.getList();
-        await App.renderPage('bookings', { ...data, tables: tables.data }, true);
+        const result = await BookingsService.getList(params);
+        // Normalize data: result.data can be Array or { items: [] }
+        const bookingsData = result.data || {};
+        const bookings = Array.isArray(bookingsData) ? bookingsData : (bookingsData.items || []);
+        const total = bookingsData.total || bookings.length;
+
+        const tablesResult = await TablesService.getList();
+        const tablesData = tablesResult.data || {};
+        const tables = Array.isArray(tablesData) ? tablesData : (tablesData.items || []);
+
+        await App.renderPage('bookings', { data: bookings, total, tables }, true);
         this.bindEvents(App, Router);
     },
 

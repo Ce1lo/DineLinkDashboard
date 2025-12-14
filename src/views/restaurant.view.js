@@ -6,8 +6,21 @@ import { RestaurantService } from '../services/restaurant.service.js';
 
 export const RestaurantView = {
     async render(App) {
-        const data = await RestaurantService.getInfo();
-        await App.renderPage('restaurant', data, true);
+        const restaurantData = await RestaurantService.getInfo();
+        // Service already returns response.data, so we don't need to access .data again unless it's double wrapped
+        // But let's be safe: if restaurantData has a 'data' property that is an object, use it.
+        // Otherwise use restaurantData itself.
+        const finalData = (restaurantData && restaurantData.data) ? restaurantData.data : restaurantData;
+        
+        // Normalize fields for template
+        if (finalData) {
+            finalData.requireDeposit = finalData.require_deposit;
+            finalData.defaultDeposit = finalData.default_deposit_amount;
+            finalData.averageRating = finalData.average_rating;
+            finalData.reviewCount = finalData.review_count;
+        }
+
+        await App.renderPage('restaurant', finalData, true);
         this.bindEvents(App);
     },
 
