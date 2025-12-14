@@ -18,6 +18,22 @@
     </div>
 </div>
 
+<!-- Tabs -->
+<div class="flex flex-wrap gap-2 mb-6" id="notificationTabs">
+    <a href="javascript:void(0)" data-tab="booking" class="px-4 py-2 rounded-full text-sm font-medium transition-colors">
+        <i class="fa-solid fa-calendar-check mr-2"></i>Booking
+    </a>
+    <a href="javascript:void(0)" data-tab="review" class="px-4 py-2 rounded-full text-sm font-medium transition-colors">
+        <i class="fa-solid fa-star mr-2"></i>Đánh giá
+    </a>
+    <a href="javascript:void(0)" data-tab="staff" class="px-4 py-2 rounded-full text-sm font-medium transition-colors">
+        <i class="fa-solid fa-users mr-2"></i>Nhân sự
+    </a>
+    <a href="javascript:void(0)" data-tab="system" class="px-4 py-2 rounded-full text-sm font-medium transition-colors">
+        <i class="fa-solid fa-gear mr-2"></i>Hệ thống
+    </a>
+</div>
+
 <!-- Filters -->
 <div class="flex flex-wrap gap-3 mb-6">
     <select class="form-input form-select w-auto" id="readFilter">
@@ -34,14 +50,11 @@
         <option value="BOOKING_CHECKED_IN">Check-in thành công</option>
         <option value="BOOKING_NO_SHOW">Khách không đến</option>
         <option value="BOOKING_PAYMENT_SUCCESS">Thanh toán thành công</option>
-        <option value="BOOKING_PAYMENT_FAILED">Thanh toán thất bại</option>
         <option value="BOOKING_REFUND_SUCCESS">Hoàn tiền thành công</option>
-        <option value="BOOKING_REMINDER">Nhắc nhở đặt bàn</option>
         <option value="STAFF_REGISTERED">Nhân viên mới</option>
         <option value="STAFF_STATUS_CHANGED">Trạng thái nhân viên</option>
         <option value="REVIEW_CREATED">Đánh giá mới</option>
-        <option value="STAFF_STATUS_CHANGED">Trạng thái nhân viên</option>
-        <option value="REVIEW_CREATED">Đánh giá mới</option>
+        <option value="GENERIC">Thông báo chung</option>
     </select>
     <button class="btn btn-outline" data-action="reset-filters" title="Tải lại bộ lọc">
         <i class="fa-solid fa-rotate-right"></i>
@@ -57,17 +70,23 @@
         
         <!-- Icon -->
         <div class="w-10 h-10 rounded-full flex items-center justify-center flex-shrink-0 cursor-pointer
-            {{#if (eq type 'BOOKING_CREATED')}}bg-green-100 text-green-600
-            {{else if (eq type 'BOOKING_CONFIRMED')}}bg-blue-100 text-blue-600
-            {{else if (eq type 'BOOKING_CHECKED_IN')}}bg-purple-100 text-purple-600
-            {{else if (eq type 'BOOKING_PAYMENT_SUCCESS')}}bg-emerald-100 text-emerald-600
+            {{#if (eq type 'BOOKING_CREATED')}}bg-yellow-100 text-yellow-600
+            {{else if (eq type 'REVIEW_CREATED')}}bg-yellow-100 text-yellow-600
+            {{else if (eq type 'STAFF_REGISTERED')}}bg-yellow-100 text-yellow-600
+            
+            {{else if (eq type 'BOOKING_CONFIRMED')}}bg-green-100 text-green-600
+            {{else if (eq type 'BOOKING_CHECKED_IN')}}bg-green-100 text-green-600
+            {{else if (eq type 'BOOKING_PAYMENT_SUCCESS')}}bg-green-100 text-green-600
+            {{else if (eq type 'BOOKING_REFUND_SUCCESS')}}bg-green-100 text-green-600
+            
             {{else if (eq type 'BOOKING_CANCELLED')}}bg-red-100 text-red-600
             {{else if (eq type 'BOOKING_NO_SHOW')}}bg-red-100 text-red-600
             {{else if (eq type 'BOOKING_PAYMENT_FAILED')}}bg-red-100 text-red-600
-            {{else if (eq type 'REVIEW_CREATED')}}bg-yellow-100 text-yellow-600
-            {{else if (eq type 'STAFF_REGISTERED')}}bg-indigo-100 text-indigo-600
-            {{else if (eq type 'STAFF_STATUS_CHANGED')}}bg-indigo-100 text-indigo-600
-            {{else if (eq type 'BOOKING_REMINDER')}}bg-orange-100 text-orange-600
+            
+            {{else if (eq type 'BOOKING_UPDATED')}}bg-blue-100 text-blue-600
+            {{else if (eq type 'STAFF_STATUS_CHANGED')}}bg-blue-100 text-blue-600
+            {{else if (eq type 'GENERIC')}}bg-blue-100 text-blue-600
+            
             {{else}}bg-stone-100 text-stone-600{{/if}}"
              data-action="notification-click" data-type="{{type}}" 
              data-booking-id="{{bookingId}}" data-review-id="{{reviewId}}" data-account-id="{{accountId}}">
@@ -80,20 +99,10 @@
             <i class="fa-solid fa-door-open"></i>
             {{else if (eq type 'BOOKING_PAYMENT_SUCCESS')}}
             <i class="fa-solid fa-money-bill-wave"></i>
-            {{else if (eq type 'BOOKING_CANCELLED')}}
-            <i class="fa-solid fa-xmark"></i>
-            {{else if (eq type 'BOOKING_NO_SHOW')}}
-            <i class="fa-solid fa-user-slash"></i>
-            {{else if (eq type 'BOOKING_PAYMENT_FAILED')}}
-            <i class="fa-solid fa-triangle-exclamation"></i>
-            {{else if (eq type 'REVIEW_CREATED')}}
-            <i class="fa-solid fa-star"></i>
-            {{else if (eq type 'STAFF_REGISTERED')}}
-            <i class="fa-solid fa-user-plus"></i>
+            {{else if (eq type 'BOOKING_REFUND_SUCCESS')}}
+            <i class="fa-solid fa-money-bill-transfer"></i>
             {{else if (eq type 'STAFF_STATUS_CHANGED')}}
             <i class="fa-solid fa-user-pen"></i>
-            {{else if (eq type 'BOOKING_REMINDER')}}
-            <i class="fa-solid fa-clock"></i>
             {{else}}
             <i class="fa-solid fa-bell"></i>
             {{/if}}

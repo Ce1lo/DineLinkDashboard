@@ -9,22 +9,58 @@ import { AccountsService } from '../services/accounts.service.js';
 
 export const NotificationsView = {
     async render(App, Router) {
-        const params = Router.getQueryParams();
-        const result = await NotificationsService.getList(params);
-        // Normalize data
+        const params = Router.getQueryParams(); // Returns plain object
+        
+        // Default to 'booking' tab if not specified
+        const currentTab = params.tab || 'booking';
+        
+        // Build query object for service
+        const queryObj = { ...params, tab: currentTab };
+        
+        const result = await NotificationsService.getList(queryObj);
         const notifData = result.data || {};
         const notifications = Array.isArray(notifData) ? notifData : (notifData.items || []);
         const pagination = notifData.pagination || {};
 
         await App.renderPage('notifications', { data: notifications, pagination }, true);
-        if (typeFilter && queryParams.has('type')) {
-            typeFilter.value = queryParams.get('type');
+
+        // Highlight active tab
+        document.querySelectorAll('#notificationTabs a').forEach(tab => {
+            const tabName = tab.dataset.tab;
+            if (tabName === currentTab) {
+                tab.className = 'px-4 py-2 rounded-full text-sm font-medium bg-primary-100 text-primary-700 transition-colors';
+            } else {
+                tab.className = 'px-4 py-2 rounded-full text-sm font-medium text-stone-600 hover:bg-stone-100 transition-colors';
+            }
+        });
+
+        // Update filter options based on tab
+        const typeFilter = document.getElementById('typeFilter');
+        const readFilter = document.getElementById('readFilter');
+        
+        this.updateTypeFilterOptions(typeFilter, currentTab);
+        
+        if (typeFilter && queryObj.type) {
+            typeFilter.value = queryObj.type;
+        }
+        if (readFilter && queryObj.is_read) {
+            readFilter.value = queryObj.is_read;
         }
 
-        this.bindEvents(App, Router);
+        this.bindEvents(App, Router, currentTab);
     },
 
-    bindEvents(App, Router) {
+    bindEvents(App, Router, currentTab) {
+        // Tab click handlers
+        document.querySelectorAll('[data-tab]').forEach(tabEl => {
+            tabEl.addEventListener('click', (e) => {
+                e.preventDefault();
+                const newTab = tabEl.dataset.tab;
+                Router.navigate(`/notifications?tab=${newTab}`);
+            });
+        });
+
+        // Notification click handlers
         document.querySelectorAll('[data-action="notification-click"]').forEach(item => {
             item.addEventListener('click', async () => {
                 const notificationId = item.dataset.notificationId;
@@ -34,8 +70,6 @@ export const NotificationsView = {
                 const accountId = item.dataset.accountId;
                 
                 await this.handleMarkRead(notificationId, App);
-                
-                // Show notification detail modal with type-specific content
                 await this.showNotificationDetailModal(type, {
                     notificationId,
                     bookingId,
@@ -45,10 +79,10 @@ export const NotificationsView = {
             });
         });
 
-        // Delete Single Item
+        // Delete handlers
         document.querySelectorAll('[data-action="delete-notification"]').forEach(btn => {
             btn.addEventListener('click', async (e) => {
-                e.stopPropagation(); // Prevent opening modal
+                e.stopPropagation();
                 const id = btn.dataset.id;
                 await this.handleDelete(id, App);
             });
@@ -70,16 +104,19 @@ export const NotificationsView = {
             });
         }
 
+        // Filter handlers - preserve tab
         const readFilter = document.getElementById('readFilter');
         if (readFilter) {
             readFilter.addEventListener('change', () => {
                 const params = new URLSearchParams(window.location.hash.split('?')[1] || '');
+                params.set('tab', currentTab);
+                params.set('page', '1');
                 if (readFilter.value) {
                     params.set('is_read', readFilter.value);
                 } else {
                     params.delete('is_read');
                 }
-                Router.navigate(`/notifications${params.toString() ? '?' + params.toString() : ''}`);
+                Router.navigate(`/notifications?${params.toString()}`);
             });
         }
 
@@ -87,17 +124,20 @@ export const NotificationsView = {
         if (typeFilter) {
             typeFilter.addEventListener('change', () => {
                 const params = new URLSearchParams(window.location.hash.split('?')[1] || '');
+                params.set('tab', currentTab);
+                params.set('page', '1');
                 if (typeFilter.value) {
                     params.set('type', typeFilter.value);
                 } else {
                     params.delete('type');
                 }
-                Router.navigate(`/notifications${params.toString() ? '?' + params.toString() : ''}`);
+                Router.navigate(`/notifications?${params.toString()}`);
             });
         }
 
         window.changePage = (page) => {
             const params = new URLSearchParams(window.location.hash.split('?')[1] || '');
+            params.set('tab', currentTab);
             params.set('page', page);
             Router.navigate(`/notifications?${params.toString()}`);
         };
@@ -105,13 +145,46 @@ export const NotificationsView = {
         const resetFilterBtn = document.querySelector('[data-action="reset-filters"]');
         if (resetFilterBtn) {
             resetFilterBtn.addEventListener('click', () => {
-                const readFilter = document.getElementById('readFilter');
-                const typeFilter = document.getElementById('typeFilter');
-                if (readFilter) readFilter.value = "";
-                if (typeFilter) typeFilter.value = "";
-                Router.navigate('/notifications');
+                Router.navigate(`/notifications?tab=${currentTab}`);
             });
         }
+    },
+
+    updateTypeFilterOptions(selectEl, tab) {
+        if (!selectEl) return;
+        
+        selectEl.innerHTML = '<option value="">Tất cả loại</option>';
+        
+        const options = {
+            booking: [
+                { val: 'BOOKING_CREATED', label: 'Đặt bàn mới' },
+                { val: 'BOOKING_UPDATED', label: 'Cập nhật đặt bàn' },
+                { val: 'BOOKING_CONFIRMED', label: 'Xác nhận booking' },
+                { val: 'BOOKING_CANCELLED', label: 'Huỷ booking' },
+                { val: 'BOOKING_CHECKED_IN', label: 'Check-in thành công' },
+                { val: 'BOOKING_NO_SHOW', label: 'Khách không đến' },
+                { val: 'BOOKING_PAYMENT_SUCCESS', label: 'Thanh toán thành công' },
+                { val: 'BOOKING_REFUND_SUCCESS', label: 'Hoàn tiền thành công' }
+            ],
+            review: [
+                { val: 'REVIEW_CREATED', label: 'Đánh giá mới' }
+            ],
+            staff: [
+                { val: 'STAFF_REGISTERED', label: 'Nhân viên mới' },
+                { val: 'STAFF_STATUS_CHANGED', label: 'Trạng thái nhân viên' }
+            ],
+            system: [
+                { val: 'GENERIC', label: 'Thông báo chung' }
+            ]
+        };
+        
+        const tabOptions = options[tab] || [];
+        tabOptions.forEach(opt => {
+            const option = document.createElement('option');
+            option.value = opt.val;
+            option.textContent = opt.label;
+            selectEl.appendChild(option);
+        });
     },
 
     /**
@@ -281,9 +354,7 @@ export const NotificationsView = {
                 case 'BOOKING_CANCELLED':
                 case 'BOOKING_CHECKED_IN':
                 case 'BOOKING_NO_SHOW':
-                case 'BOOKING_REMINDER':
                 case 'BOOKING_PAYMENT_SUCCESS':
-                case 'BOOKING_PAYMENT_FAILED':
                 case 'BOOKING_REFUND_SUCCESS':
                     titleEl.textContent = 'Chi tiết đặt bàn';
                     await this.renderBookingDetailContent(data.bookingId, contentEl, footerEl, App, Router);

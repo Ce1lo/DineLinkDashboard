@@ -467,12 +467,35 @@ export const MockHandlers = {
             };
         });
 
+        // Filter by Tab (Category)
+        const tab = params.tab || 'booking'; // Default to booking if not set
+        if (tab === 'booking') {
+            notifications = notifications.filter(n => n.type.startsWith('BOOKING_'));
+            // Optionally filter BOOKING_PAYMENT / REFUND if they are considered booking
+        } else if (tab === 'review') {
+            notifications = notifications.filter(n => n.type.startsWith('REVIEW_'));
+        } else if (tab === 'staff') {
+            notifications = notifications.filter(n => n.type.startsWith('STAFF_'));
+        } else if (tab === 'system') {
+            notifications = notifications.filter(n => n.type === 'GENERIC' || n.type === 'SYSTEM');
+        }
+
         // Filter by current user (Role-based logic simulation)
         const currentUserId = getCurrentUserId();
         if (currentUserId) {
+            // 1. Personal filter: Only show global (no accountId) OR my own notifications
             notifications = notifications.filter(n => 
                 !n.accountId || n.accountId === parseInt(currentUserId)
             );
+
+            // 2. Role-based filter: Only OWNER can see STAFF related notifications
+            const currentUser = MOCK_DATA.restaurantAccounts.find(a => a.id === parseInt(currentUserId));
+            if (currentUser && currentUser.role !== 'OWNER') {
+                notifications = notifications.filter(n => 
+                    n.type !== 'STAFF_REGISTERED' && 
+                    n.type !== 'STAFF_STATUS_CHANGED'
+                );
+            }
         }
         
         if (params.is_read === 'false') {

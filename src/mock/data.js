@@ -740,22 +740,6 @@ const _notifications = [
         sent_at: '2024-12-05T18:30:00Z'
     },
     {
-        id: 11,
-        user_id: null,
-        restaurant_id: 1,
-        type: 'BOOKING_PAYMENT_FAILED',
-        title: 'Thanh toán thất bại',
-        message: 'Giao dịch cọc cho Booking #BK002 không thành công. Lý do: Số dư không đủ.',
-        booking_id: 2,
-        review_id: null,
-        account_id: null,
-        channel: 'IN_APP',
-        is_read: false,
-        read_at: null,
-        created_at: '2024-12-06T09:00:00Z',
-        sent_at: '2024-12-06T09:00:00Z'
-    },
-    {
         id: 12,
         user_id: null,
         restaurant_id: 1,
@@ -772,23 +756,7 @@ const _notifications = [
         sent_at: '2024-12-13T10:00:00Z'
     },
     {
-        id: 13,
-        user_id: null,
-        restaurant_id: 1,
-        type: 'BOOKING_REMINDER',
-        title: 'Nhắc nhở sắp đến giờ',
-        message: 'Booking #BK005 sắp đến giờ (Còn 30 phút)',
-        booking_id: 5,
-        review_id: null,
-        account_id: null,
-        channel: 'IN_APP',
-        is_read: false,
-        read_at: null,
-        created_at: '2024-12-14T18:30:00Z',
-        sent_at: '2024-12-14T18:30:00Z'
-    },
-    {
-        id: 14,
+        id: 9,
         user_id: null,
         restaurant_id: 1,
         type: 'BOOKING_NO_SHOW',
@@ -852,20 +820,20 @@ const _notifications = [
         sent_at: '2024-12-14T10:00:00Z'
     },
     {
-        id: 18,
+        id: 19,
         user_id: null,
         restaurant_id: 1,
-        type: 'BOOKING_REMINDER',
-        title: 'Nhắc nhở ca làm việc',
-        message: 'Bạn có ca làm việc vào lúc 18:00 hôm nay.',
+        type: 'GENERIC',
+        title: 'Bảo trì hệ thống',
+        message: 'Hệ thống sẽ bảo trì từ 00:00 đến 02:00 ngày mai. Vui lòng lưu ý.',
         booking_id: null,
         review_id: null,
-        account_id: 3, // Staff ID
+        account_id: null, // Global
         channel: 'IN_APP',
         is_read: false,
         read_at: null,
-        created_at: '2024-12-14T08:00:00Z',
-        sent_at: '2024-12-14T08:00:00Z'
+        created_at: '2024-12-15T12:00:00Z',
+        sent_at: '2024-12-15T12:00:00Z'
     }
 ];
 
