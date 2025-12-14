@@ -110,6 +110,16 @@ export const RestaurantView = {
     async handleUpdateInfo(form, App) {
         const formData = new FormData(form);
         const data = Object.fromEntries(formData.entries());
+        
+        // Explicitly handle checkbox (unchecked checkboxes don't appear in FormData)
+        const requireDepositCheckbox = form.querySelector('#requireDeposit');
+        data.require_deposit = requireDepositCheckbox ? requireDepositCheckbox.checked : false;
+        data.default_deposit_amount = data.defaultDeposit || 0;
+        
+        // Clean up field names for backend
+        delete data.requireDeposit;
+        delete data.defaultDeposit;
+        
         try {
             App.showLoading(form.querySelector('button[type="submit"]'));
             const result = await RestaurantService.update(data);

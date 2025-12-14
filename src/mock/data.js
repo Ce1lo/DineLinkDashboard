@@ -1,4 +1,4 @@
-/**
+﻿/**
  * Mock Data - Dữ liệu giả lập theo cấu trúc schema.sql
  * 
  * TEST ACCOUNTS:
@@ -579,125 +579,68 @@ const _reviews = [
 
 // ==================== NOTIFICATIONS ====================
 const _notifications = [
+    // ============ BOOKING TAB (8 types) ============
+    
+    // 1. BOOKING_CREATED (Yellow - New)
     {
         id: 1,
         user_id: null,
         restaurant_id: 1,
         type: 'BOOKING_CREATED',
         title: 'Đặt bàn mới',
-        message: 'Khách Trần Văn Bình đã đặt bàn cho 4 người',
+        message: 'Khách Trần Văn Bình đã đặt bàn cho 2 người lúc 19:00 hôm nay',
         booking_id: 1,
         review_id: null,
         account_id: null,
         channel: 'IN_APP',
         is_read: false,
         read_at: null,
-        created_at: '2024-12-07T10:00:00Z',
-        sent_at: '2024-12-07T10:00:00Z'
+        created_at: getRelativeDate(1),
+        sent_at: getRelativeDate(1)
     },
     {
         id: 2,
         user_id: null,
         restaurant_id: 1,
         type: 'BOOKING_CREATED',
-        title: 'Đặt bàn mới',
-        message: 'Khách Lê Thị Cẩm đã đặt bàn cho 2 người',
+        title: 'Đặt bàn cuối tuần',
+        message: 'Khách Lê Thị Cẩm đã đặt bàn cho 6 người vào Chủ nhật 18:30',
         booking_id: 2,
         review_id: null,
         account_id: null,
         channel: 'IN_APP',
         is_read: false,
         read_at: null,
-        created_at: '2024-12-07T08:00:00Z',
-        sent_at: '2024-12-07T08:00:00Z'
+        created_at: getRelativeDate(2),
+        sent_at: getRelativeDate(2)
     },
+
+    // 2. BOOKING_UPDATED (Blue - Info)
     {
         id: 3,
         user_id: null,
         restaurant_id: 1,
-        type: 'REVIEW_CREATED',
-        title: 'Đánh giá mới',
-        message: 'Khách Trần Văn Bình đã đánh giá 5 sao',
-        booking_id: null,
-        review_id: 1,
+        type: 'BOOKING_UPDATED',
+        title: 'Khách thay đổi booking',
+        message: 'Booking #BK003 đã đổi từ 4 người → 6 người',
+        booking_id: 3,
+        review_id: null,
         account_id: null,
         channel: 'IN_APP',
         is_read: false,
         read_at: null,
-        created_at: '2024-12-07T21:00:00Z',
-        sent_at: '2024-12-07T21:00:00Z'
+        created_at: '2024-12-14T15:00:00Z',
+        sent_at: '2024-12-14T15:00:00Z'
     },
+
+    // 3. BOOKING_CONFIRMED (Green - Success)
     {
         id: 4,
         user_id: null,
         restaurant_id: 1,
-        type: 'BOOKING_CANCELLED',
-        title: 'Hủy đặt bàn',
-        message: 'Khách Lê Thị Cẩm đã hủy đặt bàn ngày 07/12',
-        booking_id: 7,
-        review_id: null,
-        account_id: null,
-        channel: 'IN_APP',
-        is_read: true,
-        read_at: '2024-12-06T10:30:00Z',
-        created_at: '2024-12-06T10:00:00Z',
-        sent_at: '2024-12-06T10:00:00Z'
-    },
-    {
-        id: 5,
-        user_id: null,
-        restaurant_id: 1,
-        type: 'MEMBER_APPROVAL',
-        title: 'Yêu cầu đăng ký nhân viên',
-        message: 'Nguyễn Thị Phục Vụ yêu cầu tham gia làm nhân viên',
-        booking_id: null,
-        review_id: null,
-        account_id: 4,
-        channel: 'IN_APP',
-        is_read: false,
-        read_at: null,
-        created_at: '2024-12-08T09:00:00Z',
-        sent_at: '2024-12-08T09:00:00Z'
-    },
-    {
-        id: 6,
-        user_id: null,
-        restaurant_id: 1,
-        type: 'REVIEW_CREATED',
-        title: 'Đánh giá mới',
-        message: 'Khách Phạm Văn Đức đã đánh giá 4 sao',
-        booking_id: null,
-        review_id: 2,
-        account_id: null,
-        channel: 'IN_APP',
-        is_read: false,
-        read_at: null,
-        created_at: '2024-12-08T15:00:00Z',
-        sent_at: '2024-12-08T15:00:00Z'
-    },
-    {
-        id: 7,
-        user_id: null,
-        restaurant_id: 1,
-        type: 'BOOKING_UPDATED',
-        title: 'Cập nhật đặt bàn',
-        message: 'Khách Trần Văn Bình đã đổi giờ đặt bàn BK001 (18:30 -> 19:30)',
-        booking_id: 1,
-        review_id: null,
-        account_id: null,
-        channel: 'IN_APP',
-        is_read: false,
-        read_at: null,
-        created_at: '2024-12-07T11:00:00Z',
-        sent_at: '2024-12-07T11:00:00Z'
-    },
-    {
-        id: 8,
-        user_id: null,
-        restaurant_id: 1,
         type: 'BOOKING_CONFIRMED',
-        title: 'Xác nhận đặt bàn',
-        message: 'Booking BK005 của khách Hoàng Văn Phú đã được xác nhận tự động',
+        title: 'Xác nhận booking',
+        message: 'Booking #BK005 của khách Hoàng Văn Phú đã được xác nhận',
         booking_id: 5,
         review_id: null,
         account_id: null,
@@ -707,13 +650,49 @@ const _notifications = [
         created_at: '2024-12-05T18:00:00Z',
         sent_at: '2024-12-05T18:00:00Z'
     },
+
+    // 4. BOOKING_CANCELLED (Red - Danger)
     {
-        id: 9,
+        id: 5,
+        user_id: null,
+        restaurant_id: 1,
+        type: 'BOOKING_CANCELLED',
+        title: 'Khách hủy đặt bàn',
+        message: 'Booking #BK007 (4 người) đã bị khách hủy do bận việc đột xuất',
+        booking_id: 7,
+        review_id: null,
+        account_id: null,
+        channel: 'IN_APP',
+        is_read: false,
+        read_at: null,
+        created_at: '2024-12-13T11:00:00Z',
+        sent_at: '2024-12-13T11:00:00Z'
+    },
+    {
+        id: 6,
+        user_id: null,
+        restaurant_id: 1,
+        type: 'BOOKING_CANCELLED',
+        title: 'Nhà hàng hủy booking',
+        message: 'Booking #BK008 đã bị hủy do nhà hàng quá tải',
+        booking_id: 8,
+        review_id: null,
+        account_id: null,
+        channel: 'IN_APP',
+        is_read: true,
+        read_at: '2024-12-12T10:00:00Z',
+        created_at: '2024-12-12T09:30:00Z',
+        sent_at: '2024-12-12T09:30:00Z'
+    },
+
+    // 5. BOOKING_CHECKED_IN (Green - Success)
+    {
+        id: 7,
         user_id: null,
         restaurant_id: 1,
         type: 'BOOKING_CHECKED_IN',
         title: 'Khách đã check-in',
-        message: 'Khách Trần Văn Bình (BK006) đã check-in tại bàn 3',
+        message: 'Khách Trần Văn Bình (BK006) đã check-in tại Bàn 3',
         booking_id: 6,
         review_id: null,
         account_id: null,
@@ -723,30 +702,52 @@ const _notifications = [
         created_at: '2024-12-14T18:00:00Z',
         sent_at: '2024-12-14T18:00:00Z'
     },
+
+    // 6. BOOKING_NO_SHOW (Red - Danger)
     {
-        id: 10,
+        id: 8,
         user_id: null,
         restaurant_id: 1,
-        type: 'BOOKING_PAYMENT_SUCCESS',
-        title: 'Thanh toán thành công',
-        message: 'Đã nhận 1,000,000đ tiền cọc từ Booking #BK005',
-        booking_id: 5,
+        type: 'BOOKING_NO_SHOW',
+        title: 'Khách vắng mặt',
+        message: 'Booking #BK012 đã quá giờ hẹn 15 phút, khách vẫn chưa check-in',
+        booking_id: 12,
         review_id: null,
         account_id: null,
         channel: 'IN_APP',
         is_read: false,
         read_at: null,
-        created_at: '2024-12-05T18:30:00Z',
-        sent_at: '2024-12-05T18:30:00Z'
+        created_at: '2024-12-13T19:30:00Z',
+        sent_at: '2024-12-13T19:30:00Z'
     },
+
+    // 7. BOOKING_PAYMENT_SUCCESS (Green - Success)
     {
-        id: 12,
+        id: 9,
+        user_id: null,
+        restaurant_id: 1,
+        type: 'BOOKING_PAYMENT_SUCCESS',
+        title: 'Thanh toán cọc thành công',
+        message: 'Đã nhận 500,000đ tiền cọc từ khách Nguyễn Văn A (Booking #BK009)',
+        booking_id: 9,
+        review_id: null,
+        account_id: null,
+        channel: 'IN_APP',
+        is_read: false,
+        read_at: null,
+        created_at: '2024-12-14T20:00:00Z',
+        sent_at: '2024-12-14T20:00:00Z'
+    },
+
+    // 8. BOOKING_REFUND_SUCCESS (Green - Success)
+    {
+        id: 10,
         user_id: null,
         restaurant_id: 1,
         type: 'BOOKING_REFUND_SUCCESS',
-        title: 'Hoàn tiền thành công',
-        message: 'Đã hoàn 200,000đ cho khách Booking #BK007 (Đã hủy)',
-        booking_id: 7,
+        title: 'Hoàn tiền cọc thành công',
+        message: 'Đã hoàn 200,000đ cho khách Trần Thị B (Booking #BK010 - Nhà hàng hủy)',
+        booking_id: 10,
         review_id: null,
         account_id: null,
         channel: 'IN_APP',
@@ -755,88 +756,187 @@ const _notifications = [
         created_at: '2024-12-13T10:00:00Z',
         sent_at: '2024-12-13T10:00:00Z'
     },
+
+    // ============ REVIEW TAB (1 type) ============
+    
+    // 9. REVIEW_CREATED (Yellow - New)
     {
-        id: 9,
+        id: 11,
         user_id: null,
         restaurant_id: 1,
-        type: 'BOOKING_NO_SHOW',
-        title: 'Khách không đến',
-        message: 'Booking #BK008 đã quá giờ 30 phút. Đánh dấu No-Show.',
-        booking_id: 8,
+        type: 'REVIEW_CREATED',
+        title: 'Đánh giá 5 sao',
+        message: 'Khách Trần Văn Bình đã đánh giá 5 sao: "Rất hài lòng với chất lượng phục vụ!"',
+        booking_id: null,
+        review_id: 1,
+        account_id: null,
+        channel: 'IN_APP',
+        is_read: false,
+        read_at: null,
+        created_at: '2024-12-14T22:00:00Z',
+        sent_at: '2024-12-14T22:00:00Z'
+    },
+    {
+        id: 12,
+        user_id: null,
+        restaurant_id: 1,
+        type: 'REVIEW_CREATED',
+        title: 'Đánh giá 1 sao!',
+        message: 'Khách ẩn danh vừa để lại đánh giá 1 sao: "Phục vụ quá tệ!"',
+        booking_id: null,
+        review_id: 3,
+        account_id: null,
+        channel: 'IN_APP',
+        is_read: false,
+        read_at: null,
+        created_at: '2024-12-14T21:30:00Z',
+        sent_at: '2024-12-14T21:30:00Z'
+    },
+    {
+        id: 13,
+        user_id: null,
+        restaurant_id: 1,
+        type: 'REVIEW_CREATED',
+        title: 'Đánh giá 3 sao',
+        message: 'Khách Phạm Văn Đức đã đánh giá 3 sao: "Bình thường, không có gì đặc biệt"',
+        booking_id: null,
+        review_id: 4,
+        account_id: null,
+        channel: 'IN_APP',
+        is_read: true,
+        read_at: '2024-12-13T08:00:00Z',
+        created_at: '2024-12-13T07:45:00Z',
+        sent_at: '2024-12-13T07:45:00Z'
+    },
+
+    // ============ STAFF TAB (2 types) ============
+    
+    // 10. STAFF_REGISTERED (Yellow - New)
+    {
+        id: 14,
+        user_id: null,
+        restaurant_id: 1,
+        type: 'STAFF_REGISTERED',
+        title: 'Đăng ký nhân viên mới',
+        message: 'Nhân viên "Lê Văn Tuấn" vừa đăng ký tài khoản và chờ duyệt.',
+        booking_id: null,
         review_id: null,
         account_id: null,
         channel: 'IN_APP',
         is_read: false,
         read_at: null,
-        created_at: '2024-12-12T19:00:00Z',
-        sent_at: '2024-12-12T19:00:00Z'
+        created_at: '2024-12-14T09:00:00Z',
+        sent_at: '2024-12-14T09:00:00Z'
     },
+
+    // 11. STAFF_STATUS_CHANGED (Blue - Info)
     {
         id: 15,
         user_id: null,
         restaurant_id: 1,
-        type: 'STAFF_REGISTERED',
-        title: 'Nhân viên mới đăng ký',
-        message: 'Trần Văn Nhân (nhan@email.com) vừa đăng ký tài khoản nhân viên.',
+        type: 'STAFF_STATUS_CHANGED',
+        title: 'Duyệt nhân viên',
+        message: 'Tài khoản của bạn đã được duyệt và chuyển sang trạng thái ACTIVE.',
         booking_id: null,
         review_id: null,
-        account_id: 5,
+        account_id: 3, // Staff specific notification
         channel: 'IN_APP',
-        is_read: false,
-        read_at: null,
-        created_at: '2024-12-03T09:00:00Z',
-        sent_at: '2024-12-03T09:00:00Z'
+        is_read: true,
+        read_at: '2024-12-12T08:00:00Z',
+        created_at: '2024-12-12T08:00:00Z',
+        sent_at: '2024-12-12T08:00:00Z'
     },
     {
         id: 16,
         user_id: null,
         restaurant_id: 1,
         type: 'STAFF_STATUS_CHANGED',
-        title: 'Trạng thái nhân viên',
-        message: 'Nhân viên Vũ Văn Staff2 đã bị khóa tài khoản.',
+        title: 'Khóa tài khoản nhân viên',
+        message: 'Nhân viên "Vũ Văn Staff2" đã bị khóa tài khoản do vi phạm nội quy.',
         booking_id: null,
         review_id: null,
-        account_id: 4,
+        account_id: null,
         channel: 'IN_APP',
-        is_read: true,
-        read_at: '2024-11-01T10:00:00Z',
-        created_at: '2024-11-01T08:00:00Z',
-        sent_at: '2024-11-01T08:00:00Z'
+        is_read: false,
+        read_at: null,
+        created_at: '2024-11-01T10:00:00Z',
+        sent_at: '2024-11-01T10:00:00Z'
     },
+
+    // ============ SYSTEM TAB (3 types) ============
+    
+    // 12. CHANGED_PASSWORD (Blue - Info)
     {
         id: 17,
         user_id: null,
         restaurant_id: 1,
-        type: 'STAFF_STATUS_CHANGED',
-        title: 'Thông báo cá nhân',
-        message: 'Tài khoản Staff của bạn đã được kích hoạt thành công.',
+        type: 'CHANGED_PASSWORD',
+        title: 'Đổi mật khẩu thành công',
+        message: 'Bạn đã thay đổi mật khẩu thành công lúc 14:30 ngày 14/12/2024.',
         booking_id: null,
         review_id: null,
-        account_id: 3, // Staff ID
+        account_id: 1, // Owner account
         channel: 'IN_APP',
         is_read: false,
         read_at: null,
-        created_at: '2024-12-14T10:00:00Z',
-        sent_at: '2024-12-14T10:00:00Z'
+        created_at: '2024-12-14T14:30:00Z',
+        sent_at: '2024-12-14T14:30:00Z'
     },
+
+    // 13. UPDATED_INFO_SUCCESS (Blue - Info)
+    {
+        id: 18,
+        user_id: null,
+        restaurant_id: 1,
+        type: 'UPDATED_INFO_SUCCESS',
+        title: 'Cập nhật thông tin thành công',
+        message: 'Thông tin nhà hàng (địa chỉ, số điện thoại) đã được cập nhật thành công.',
+        booking_id: null,
+        review_id: null,
+        account_id: null,
+        channel: 'IN_APP',
+        is_read: false,
+        read_at: null,
+        created_at: '2024-12-14T16:00:00Z',
+        sent_at: '2024-12-14T16:00:00Z'
+    },
+
+    // 14. GENERIC (Blue - Info)
     {
         id: 19,
         user_id: null,
         restaurant_id: 1,
         type: 'GENERIC',
         title: 'Bảo trì hệ thống',
-        message: 'Hệ thống sẽ bảo trì từ 00:00 đến 02:00 ngày mai. Vui lòng lưu ý.',
+        message: 'Hệ thống sẽ bảo trì từ 02:00 đến 04:00 sáng ngày mai. Vui lòng lưu ý.',
         booking_id: null,
         review_id: null,
-        account_id: null, // Global
+        account_id: null,
         channel: 'IN_APP',
         is_read: false,
         read_at: null,
-        created_at: '2024-12-15T12:00:00Z',
-        sent_at: '2024-12-15T12:00:00Z'
+        created_at: '2024-12-14T18:00:00Z',
+        sent_at: '2024-12-14T18:00:00Z'
+    },
+
+    // Additional Staff notification (for test account)
+    {
+        id: 20,
+        user_id: null,
+        restaurant_id: 1,
+        type: 'STAFF_STATUS_CHANGED',
+        title: 'Thông báo cá nhân',
+        message: 'Tài khoản của bạn đã được kích hoạt. Chào mừng đến với đội ngũ!',
+        booking_id: null,
+        review_id: null,
+        account_id: 3, // For staff@restaurant.com
+        channel: 'IN_APP',
+        is_read: false,
+        read_at: null,
+        created_at: '2024-12-03T08:00:00Z',
+        sent_at: '2024-12-03T08:00:00Z'
     }
 ];
-
 // ==================== RESTAURANT IMAGES ====================
 const _restaurantImages = [
     { id: 1, restaurant_id: 1, file_path: 'https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?w=800', type: 'COVER', caption: 'Không gian nhà hàng', is_primary: true, created_at: '2024-01-01T00:00:00Z' },

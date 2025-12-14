@@ -9,56 +9,61 @@ import { AccountsService } from '../services/accounts.service.js';
 
 export const NotificationsView = {
     async render(App, Router) {
-        const params = Router.getQueryParams(); // Returns plain object
-        
-        // Default to 'booking' tab if not specified
-        const currentTab = params.tab || 'booking';
-        
-        // Build query object for service
-        const queryObj = { ...params, tab: currentTab };
-        
-        const result = await NotificationsService.getList(queryObj);
+        const params = Router.getQueryParams();
+        const result = await NotificationsService.getList(params);
         const notifData = result.data || {};
         const notifications = Array.isArray(notifData) ? notifData : (notifData.items || []);
         const pagination = notifData.pagination || {};
 
         await App.renderPage('notifications', { data: notifications, pagination }, true);
 
-        // Highlight active tab
-        document.querySelectorAll('#notificationTabs a').forEach(tab => {
-            const tabName = tab.dataset.tab;
-            if (tabName === currentTab) {
-                tab.className = 'px-4 py-2 rounded-full text-sm font-medium bg-primary-100 text-primary-700 transition-colors';
-            } else {
-                tab.className = 'px-4 py-2 rounded-full text-sm font-medium text-stone-600 hover:bg-stone-100 transition-colors';
-            }
-        });
-
-        // Update filter options based on tab
+        // Set filter values from URL params
         const typeFilter = document.getElementById('typeFilter');
         const readFilter = document.getElementById('readFilter');
         
-        this.updateTypeFilterOptions(typeFilter, currentTab);
-        
-        if (typeFilter && queryObj.type) {
-            typeFilter.value = queryObj.type;
+        if (typeFilter && params.type) {
+            typeFilter.value = params.type;
         }
-        if (readFilter && queryObj.is_read) {
-            readFilter.value = queryObj.is_read;
+        if (readFilter && params.is_read) {
+            readFilter.value = params.is_read;
         }
 
-        this.bindEvents(App, Router, currentTab);
+        this.bindEvents(App, Router);
     },
 
-    bindEvents(App, Router, currentTab) {
-        // Tab click handlers
-        document.querySelectorAll('[data-tab]').forEach(tabEl => {
-            tabEl.addEventListener('click', (e) => {
-                e.preventDefault();
-                const newTab = tabEl.dataset.tab;
-                Router.navigate(`/notifications?tab=${newTab}`);
+    bindEvents(App, Router) {
+        // Filter handler
+        const applyFilterBtn = document.getElementById('applyFilterBtn');
+        const typeFilter = document.getElementById('typeFilter');
+        const readFilter = document.getElementById('readFilter');
+
+        if (applyFilterBtn && typeFilter && readFilter) {
+            applyFilterBtn.addEventListener('click', () => {
+                const currentParams = new URLSearchParams(window.location.hash.split('?')[1] || '');
+                
+                // Update params
+                if (typeFilter.value) {
+                    currentParams.set('type', typeFilter.value);
+                } else {
+                    currentParams.delete('type');
+                }
+                
+                if (readFilter.value) {
+                    currentParams.set('is_read', readFilter.value);
+                } else {
+                    currentParams.delete('is_read');
+                }
+                
+                // Reset to page 1
+                currentParams.delete('page');
+
+                // Navigate
+                Router.navigate(`notifications?${currentParams.toString()}`);
+                
+                // Show feedback
+                App.showSuccess('Đã áp dụng bộ lọc thông báo');
             });
-        });
+        }
 
         // Notification click handlers
         document.querySelectorAll('[data-action="notification-click"]').forEach(item => {
@@ -104,36 +109,7 @@ export const NotificationsView = {
             });
         }
 
-        // Filter handlers - preserve tab
-        const readFilter = document.getElementById('readFilter');
-        if (readFilter) {
-            readFilter.addEventListener('change', () => {
-                const params = new URLSearchParams(window.location.hash.split('?')[1] || '');
-                params.set('tab', currentTab);
-                params.set('page', '1');
-                if (readFilter.value) {
-                    params.set('is_read', readFilter.value);
-                } else {
-                    params.delete('is_read');
-                }
-                Router.navigate(`/notifications?${params.toString()}`);
-            });
-        }
 
-        const typeFilter = document.getElementById('typeFilter');
-        if (typeFilter) {
-            typeFilter.addEventListener('change', () => {
-                const params = new URLSearchParams(window.location.hash.split('?')[1] || '');
-                params.set('tab', currentTab);
-                params.set('page', '1');
-                if (typeFilter.value) {
-                    params.set('type', typeFilter.value);
-                } else {
-                    params.delete('type');
-                }
-                Router.navigate(`/notifications?${params.toString()}`);
-            });
-        }
 
         window.changePage = (page) => {
             const params = new URLSearchParams(window.location.hash.split('?')[1] || '');

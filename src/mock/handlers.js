@@ -467,19 +467,6 @@ export const MockHandlers = {
             };
         });
 
-        // Filter by Tab (Category)
-        const tab = params.tab || 'booking'; // Default to booking if not set
-        if (tab === 'booking') {
-            notifications = notifications.filter(n => n.type.startsWith('BOOKING_'));
-            // Optionally filter BOOKING_PAYMENT / REFUND if they are considered booking
-        } else if (tab === 'review') {
-            notifications = notifications.filter(n => n.type.startsWith('REVIEW_'));
-        } else if (tab === 'staff') {
-            notifications = notifications.filter(n => n.type.startsWith('STAFF_'));
-        } else if (tab === 'system') {
-            notifications = notifications.filter(n => n.type === 'GENERIC' || n.type === 'SYSTEM');
-        }
-
         // Filter by current user (Role-based logic simulation)
         const currentUserId = getCurrentUserId();
         if (currentUserId) {
@@ -602,8 +589,8 @@ export const MockHandlers = {
             phone: data.phone || restaurant.phone,
             description: data.description || restaurant.description,
             tags: data.tags || restaurant.tags,
-            require_deposit: data.requireDeposit !== undefined ? data.requireDeposit === 'on' : restaurant.require_deposit,
-            default_deposit_amount: data.defaultDeposit ? parseInt(data.defaultDeposit) : restaurant.default_deposit_amount
+            require_deposit: data.require_deposit !== undefined ? data.require_deposit : restaurant.require_deposit,
+            default_deposit_amount: data.default_deposit_amount !== undefined ? parseInt(data.default_deposit_amount) : restaurant.default_deposit_amount
         });
         // Persist to localStorage
         MOCK_DATA.saveRestaurants();

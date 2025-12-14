@@ -18,46 +18,40 @@
     </div>
 </div>
 
-<!-- Tabs -->
-<div class="flex flex-wrap gap-2 mb-6" id="notificationTabs">
-    <a href="javascript:void(0)" data-tab="booking" class="px-4 py-2 rounded-full text-sm font-medium transition-colors">
-        <i class="fa-solid fa-calendar-check mr-2"></i>Booking
-    </a>
-    <a href="javascript:void(0)" data-tab="review" class="px-4 py-2 rounded-full text-sm font-medium transition-colors">
-        <i class="fa-solid fa-star mr-2"></i>Đánh giá
-    </a>
-    <a href="javascript:void(0)" data-tab="staff" class="px-4 py-2 rounded-full text-sm font-medium transition-colors">
-        <i class="fa-solid fa-users mr-2"></i>Nhân sự
-    </a>
-    <a href="javascript:void(0)" data-tab="system" class="px-4 py-2 rounded-full text-sm font-medium transition-colors">
-        <i class="fa-solid fa-gear mr-2"></i>Hệ thống
-    </a>
-</div>
-
 <!-- Filters -->
-<div class="flex flex-wrap gap-3 mb-6">
-    <select class="form-input form-select w-auto" id="readFilter">
-        <option value="">Tất cả</option>
-        <option value="false">Chưa đọc</option>
-        <option value="true">Đã đọc</option>
-    </select>
-    <select class="form-input form-select w-auto" id="typeFilter">
-        <option value="">Tất cả loại</option>
-        <option value="BOOKING_CREATED">Đặt bàn mới</option>
-        <option value="BOOKING_UPDATED">Cập nhật đặt bàn</option>
-        <option value="BOOKING_CANCELLED">Huỷ booking</option>
-        <option value="BOOKING_CONFIRMED">Xác nhận booking</option>
-        <option value="BOOKING_CHECKED_IN">Check-in thành công</option>
-        <option value="BOOKING_NO_SHOW">Khách không đến</option>
-        <option value="BOOKING_PAYMENT_SUCCESS">Thanh toán thành công</option>
-        <option value="BOOKING_REFUND_SUCCESS">Hoàn tiền thành công</option>
-        <option value="STAFF_REGISTERED">Nhân viên mới</option>
-        <option value="STAFF_STATUS_CHANGED">Trạng thái nhân viên</option>
-        <option value="REVIEW_CREATED">Đánh giá mới</option>
-        <option value="GENERIC">Thông báo chung</option>
-    </select>
-    <button class="btn btn-outline" data-action="reset-filters" title="Tải lại bộ lọc">
-        <i class="fa-solid fa-rotate-right"></i>
+<div class="flex flex-wrap gap-3 mb-6 items-end">
+    <div>
+        <label for="readFilter" class="block text-sm font-medium text-stone-700 mb-1">Trạng thái</label>
+        <select class="form-input form-select w-40" id="readFilter">
+            <option value="">Tất cả</option>
+            <option value="false">Chưa đọc</option>
+            <option value="true">Đã đọc</option>
+        </select>
+    </div>
+    
+    <div>
+        <label for="typeFilter" class="block text-sm font-medium text-stone-700 mb-1">Loại thông báo</label>
+        <select class="form-input form-select w-48" id="typeFilter">
+            <option value="">Tất cả loại</option>
+            <option value="BOOKING_CREATED">Đặt bàn mới</option>
+            <option value="BOOKING_UPDATED">Cập nhật đặt bàn</option>
+            <option value="BOOKING_CONFIRMED">Xác nhận</option>
+            <option value="BOOKING_CANCELLED">Hủy booking</option>
+            <option value="BOOKING_CHECKED_IN">Check-in</option>
+            <option value="BOOKING_NO_SHOW">KH không đến</option>
+            <option value="BOOKING_PAYMENT_SUCCESS">Thanh toán thành công</option>
+            <option value="BOOKING_REFUND_SUCCESS">Hoàn tiền</option>
+            <option value="REVIEW_CREATED">Đánh giá mới</option>
+            <option value="STAFF_REGISTERED">Nhân viên mới</option>
+            <option value="STAFF_STATUS_CHANGED">Thay đổi trạng thái</option>
+            <option value="GENERIC">Hệ thống</option>
+            <option value="CHANGED_PASSWORD">Đổi mật khẩu</option>
+            <option value="UPDATED_INFO_SUCCESS">Cập nhật thông tin</option>
+        </select>
+    </div>
+
+    <button id="applyFilterBtn" class="btn btn-secondary h-[42px]">
+        <i class="fa-solid fa-filter mr-2"></i>Lọc
     </button>
 </div>
 
@@ -86,6 +80,8 @@
             {{else if (eq type 'BOOKING_UPDATED')}}bg-blue-100 text-blue-600
             {{else if (eq type 'STAFF_STATUS_CHANGED')}}bg-blue-100 text-blue-600
             {{else if (eq type 'GENERIC')}}bg-blue-100 text-blue-600
+            {{else if (eq type 'CHANGED_PASSWORD')}}bg-blue-100 text-blue-600
+            {{else if (eq type 'UPDATED_INFO_SUCCESS')}}bg-blue-100 text-blue-600
             
             {{else}}bg-stone-100 text-stone-600{{/if}}"
              data-action="notification-click" data-type="{{type}}" 
