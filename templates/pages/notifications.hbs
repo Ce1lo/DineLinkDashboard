@@ -6,10 +6,16 @@
         <h1 class="text-2xl font-bold text-stone-900">Thông báo</h1>
         <p class="text-stone-500">Cập nhật mới nhất từ hệ thống</p>
     </div>
-    <button class="btn btn-outline" data-action="mark-all-read">
-        <i class="fa-solid fa-check-double"></i>
-        Đánh dấu tất cả đã đọc
-    </button>
+    <div class="flex gap-2">
+        <button class="btn btn-outline" data-action="mark-all-read">
+            <i class="fa-solid fa-check-double"></i>
+            Đánh dấu tất cả đã đọc
+        </button>
+        <button class="btn btn-outline text-red-600 hover:bg-red-50 hover:border-red-600" data-action="delete-all">
+            <i class="fa-solid fa-trash-can"></i>
+            Xóa tất cả
+        </button>
+    </div>
 </div>
 
 <!-- Filters -->
@@ -22,39 +28,81 @@
     <select class="form-input form-select w-auto" id="typeFilter">
         <option value="">Tất cả loại</option>
         <option value="BOOKING_CREATED">Đặt bàn mới</option>
-        <option value="BOOKING_CONFIRMED">Xác nhận booking</option>
+        <option value="BOOKING_UPDATED">Cập nhật đặt bàn</option>
         <option value="BOOKING_CANCELLED">Huỷ booking</option>
+        <option value="BOOKING_CONFIRMED">Xác nhận booking</option>
+        <option value="BOOKING_CHECKED_IN">Check-in thành công</option>
+        <option value="BOOKING_NO_SHOW">Khách không đến</option>
+        <option value="BOOKING_PAYMENT_SUCCESS">Thanh toán thành công</option>
+        <option value="BOOKING_PAYMENT_FAILED">Thanh toán thất bại</option>
+        <option value="BOOKING_REFUND_SUCCESS">Hoàn tiền thành công</option>
+        <option value="BOOKING_REMINDER">Nhắc nhở đặt bàn</option>
+        <option value="STAFF_REGISTERED">Nhân viên mới</option>
+        <option value="STAFF_STATUS_CHANGED">Trạng thái nhân viên</option>
+        <option value="REVIEW_CREATED">Đánh giá mới</option>
+        <option value="STAFF_STATUS_CHANGED">Trạng thái nhân viên</option>
         <option value="REVIEW_CREATED">Đánh giá mới</option>
     </select>
+    <button class="btn btn-outline" data-action="reset-filters" title="Tải lại bộ lọc">
+        <i class="fa-solid fa-rotate-right"></i>
+    </button>
 </div>
 
 <!-- Notifications List -->
 <div class="card overflow-hidden">
     {{#each data}}
-    <div class="notification-item flex items-start gap-4 p-4 border-b border-stone-100 hover:bg-stone-50 cursor-pointer transition-colors {{#unless isRead}}bg-primary-50/50{{/unless}} animate-fade-in"
-         data-action="notification-click" data-notification-id="{{id}}" data-type="{{type}}" 
-         data-booking-id="{{bookingId}}" data-review-id="{{reviewId}}" data-account-id="{{accountId}}"
+    <div class="notification-item flex items-start gap-4 p-4 border-b border-stone-100 hover:bg-stone-50 transition-colors {{#unless isRead}}bg-primary-50/50{{/unless}} animate-fade-in"
+         data-notification-id="{{id}}"
          style="animation-delay: {{@index}}0ms">
         
         <!-- Icon -->
-        <div class="w-10 h-10 rounded-full flex items-center justify-center flex-shrink-0
+        <div class="w-10 h-10 rounded-full flex items-center justify-center flex-shrink-0 cursor-pointer
             {{#if (eq type 'BOOKING_CREATED')}}bg-green-100 text-green-600
+            {{else if (eq type 'BOOKING_CONFIRMED')}}bg-blue-100 text-blue-600
+            {{else if (eq type 'BOOKING_CHECKED_IN')}}bg-purple-100 text-purple-600
+            {{else if (eq type 'BOOKING_PAYMENT_SUCCESS')}}bg-emerald-100 text-emerald-600
             {{else if (eq type 'BOOKING_CANCELLED')}}bg-red-100 text-red-600
+            {{else if (eq type 'BOOKING_NO_SHOW')}}bg-red-100 text-red-600
+            {{else if (eq type 'BOOKING_PAYMENT_FAILED')}}bg-red-100 text-red-600
             {{else if (eq type 'REVIEW_CREATED')}}bg-yellow-100 text-yellow-600
-            {{else}}bg-blue-100 text-blue-600{{/if}}">
+            {{else if (eq type 'STAFF_REGISTERED')}}bg-indigo-100 text-indigo-600
+            {{else if (eq type 'STAFF_STATUS_CHANGED')}}bg-indigo-100 text-indigo-600
+            {{else if (eq type 'BOOKING_REMINDER')}}bg-orange-100 text-orange-600
+            {{else}}bg-stone-100 text-stone-600{{/if}}"
+             data-action="notification-click" data-type="{{type}}" 
+             data-booking-id="{{bookingId}}" data-review-id="{{reviewId}}" data-account-id="{{accountId}}">
+            
             {{#if (eq type 'BOOKING_CREATED')}}
-            <i class="fa-solid fa-circle"></i>
+            <i class="fa-solid fa-plus"></i>
+            {{else if (eq type 'BOOKING_CONFIRMED')}}
+            <i class="fa-solid fa-check"></i>
+            {{else if (eq type 'BOOKING_CHECKED_IN')}}
+            <i class="fa-solid fa-door-open"></i>
+            {{else if (eq type 'BOOKING_PAYMENT_SUCCESS')}}
+            <i class="fa-solid fa-money-bill-wave"></i>
             {{else if (eq type 'BOOKING_CANCELLED')}}
-            <i class="fa-solid fa-circle"></i>
+            <i class="fa-solid fa-xmark"></i>
+            {{else if (eq type 'BOOKING_NO_SHOW')}}
+            <i class="fa-solid fa-user-slash"></i>
+            {{else if (eq type 'BOOKING_PAYMENT_FAILED')}}
+            <i class="fa-solid fa-triangle-exclamation"></i>
             {{else if (eq type 'REVIEW_CREATED')}}
             <i class="fa-solid fa-star"></i>
+            {{else if (eq type 'STAFF_REGISTERED')}}
+            <i class="fa-solid fa-user-plus"></i>
+            {{else if (eq type 'STAFF_STATUS_CHANGED')}}
+            <i class="fa-solid fa-user-pen"></i>
+            {{else if (eq type 'BOOKING_REMINDER')}}
+            <i class="fa-solid fa-clock"></i>
             {{else}}
             <i class="fa-solid fa-bell"></i>
             {{/if}}
         </div>
         
         <!-- Content -->
-        <div class="flex-1 min-w-0">
+        <div class="flex-1 min-w-0 cursor-pointer" 
+             data-action="notification-click" data-type="{{type}}" 
+             data-booking-id="{{bookingId}}" data-review-id="{{reviewId}}" data-account-id="{{accountId}}">
             <div class="flex items-start justify-between gap-3">
                 <div>
                     <h4 class="font-semibold text-stone-900 {{#unless isRead}}text-primary-700{{/unless}}">
@@ -62,12 +110,20 @@
                     </h4>
                     <p class="text-sm text-stone-600 mt-1">{{content}}</p>
                 </div>
-                <div class="flex items-center gap-2 flex-shrink-0">
-                    <span class="text-xs text-stone-400">{{timeAgo createdAt}}</span>
-                    {{#unless isRead}}
-                    <span class="w-2 h-2 bg-primary-500 rounded-full"></span>
-                    {{/unless}}
-                </div>
+            </div>
+        </div>
+
+        <!-- Meta & Actions -->
+        <div class="flex flex-col items-end gap-2 flex-shrink-0">
+            <span class="text-xs text-stone-400">{{timeAgo createdAt}}</span>
+            <div class="flex items-center gap-2">
+                {{#unless isRead}}
+                <span class="w-2 h-2 bg-primary-500 rounded-full" title="Chưa đọc"></span>
+                {{/unless}}
+                <button class="text-stone-400 hover:text-red-600 p-1 rounded-full hover:bg-red-50 transition-colors"
+                        data-action="delete-notification" data-id="{{id}}" title="Xóa thông báo">
+                    <i class="fa-solid fa-trash-can text-sm"></i>
+                </button>
             </div>
         </div>
     </div>

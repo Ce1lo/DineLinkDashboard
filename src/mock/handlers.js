@@ -63,6 +63,7 @@ export const MockHandlers = {
         const refreshToken = `mock_refresh_token_${account.role.toLowerCase()}_${timestamp}`;
         
         return {
+            success: true, // Added for consistency
             accessToken,
             refreshToken,
             token: accessToken, // Legacy support
@@ -465,6 +466,14 @@ export const MockHandlers = {
                 accountId: n.account_id
             };
         });
+
+        // Filter by current user (Role-based logic simulation)
+        const currentUserId = getCurrentUserId();
+        if (currentUserId) {
+            notifications = notifications.filter(n => 
+                !n.accountId || n.accountId === parseInt(currentUserId)
+            );
+        }
         
         if (params.is_read === 'false') {
             notifications = notifications.filter(n => !n.isRead);
@@ -519,6 +528,23 @@ export const MockHandlers = {
             n.is_read = true;
             n.read_at = new Date().toISOString();
         });
+        MOCK_DATA.saveNotifications();
+        return { success: true };
+    },
+
+    async deleteNotification(id) {
+        await this.delay();
+        const index = MOCK_DATA.notifications.findIndex(n => n.id === parseInt(id));
+        if (index > -1) {
+            MOCK_DATA.notifications.splice(index, 1);
+            MOCK_DATA.saveNotifications();
+        }
+        return { success: true };
+    },
+
+    async deleteAllNotifications() {
+        await this.delay();
+        MOCK_DATA.notifications = [];
         MOCK_DATA.saveNotifications();
         return { success: true };
     },

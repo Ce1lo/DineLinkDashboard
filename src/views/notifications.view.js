@@ -17,6 +17,10 @@ export const NotificationsView = {
         const pagination = notifData.pagination || {};
 
         await App.renderPage('notifications', { data: notifications, pagination }, true);
+        if (typeFilter && queryParams.has('type')) {
+            typeFilter.value = queryParams.get('type');
+        }
+
         this.bindEvents(App, Router);
     },
 
@@ -41,10 +45,28 @@ export const NotificationsView = {
             });
         });
 
+        // Delete Single Item
+        document.querySelectorAll('[data-action="delete-notification"]').forEach(btn => {
+            btn.addEventListener('click', async (e) => {
+                e.stopPropagation(); // Prevent opening modal
+                const id = btn.dataset.id;
+                await this.handleDelete(id, App);
+            });
+        });
+
         const markAllBtn = document.querySelector('[data-action="mark-all-read"]');
         if (markAllBtn) {
             markAllBtn.addEventListener('click', async () => {
                 await this.handleMarkAllRead(App);
+            });
+        }
+        
+        const deleteAllBtn = document.querySelector('[data-action="delete-all"]');
+        if (deleteAllBtn) {
+            deleteAllBtn.addEventListener('click', async () => {
+                if(confirm('Bạn có chắc muốn xóa tất cả thông báo?')) {
+                    await this.handleDeleteAll(App);
+                }
             });
         }
 
@@ -79,6 +101,32 @@ export const NotificationsView = {
             params.set('page', page);
             Router.navigate(`/notifications?${params.toString()}`);
         };
+
+        const resetFilterBtn = document.querySelector('[data-action="reset-filters"]');
+        if (resetFilterBtn) {
+            resetFilterBtn.addEventListener('click', () => {
+                const readFilter = document.getElementById('readFilter');
+                const typeFilter = document.getElementById('typeFilter');
+                if (readFilter) readFilter.value = "";
+                if (typeFilter) typeFilter.value = "";
+                Router.navigate('/notifications');
+            });
+        }
+    },
+
+    /**
+     * Helper to reload current page maintaining filters
+     */
+    async refreshPage(App) {
+        // Since Router.reload() usually re-fetches the route action
+        // We just need to ensure the Router stays on the same current URL with params
+        window.location.reload(); 
+        // Note: For SPA, window.location.reload() refreshes the whole browser.
+        // If we want SPA-style reload, we might need a custom Router method or simply re-execute render.
+        // But App.reload() in this project creates a full reload which resets state if not in URL.
+        // Since we put filters in URL (events above), App.reload() SHOULD work if it keeps the URL.
+        // Let's verify App.reload implementation usually: window.location.reload().
+        // If so, inputs need to be bound to values from params to persist.
     },
 
     /**
@@ -621,10 +669,44 @@ export const NotificationsView = {
             const result = await NotificationsService.markAllAsRead();
             if (result.success) {
                 App.showSuccess('Đã đánh dấu tất cả là đã đọc!');
-                App.reload();
+                // Wait a bit then reload to show updates
+                setTimeout(() => window.location.reload(), 500);
             }
         } catch (error) {
             App.showError('Có lỗi xảy ra. Vui lòng thử lại.');
+        }
+    },
+
+    async handleDelete(id, App) {
+        try {
+            const result = await NotificationsService.delete(id);
+            if (result.success) {
+                // Remove from DOM with animation
+                const item = document.querySelector(`.notification-item[data-notification-id="${id}"]`);
+                if (item) {
+                    item.style.opacity = '0';
+                    item.style.transform = 'translateY(10px) scale(0.95)';
+                    setTimeout(() => item.remove(), 300);
+                }
+            } else {
+                 App.showError('Không thể xóa thông báo.');
+            }
+        } catch (error) {
+            App.showError('Có lỗi xảy ra khi xóa.');
+        }
+    },
+
+    async handleDeleteAll(App) {
+        try {
+            const result = await NotificationsService.deleteAll();
+            if (result.success) {
+                App.showSuccess('Đã xóa tất cả thông báo!');
+                setTimeout(() => window.location.reload(), 500);
+            } else {
+                App.showError('Không thể xóa tất cả thông báo.');
+            }
+        } catch (error) {
+            App.showError('Có lỗi xảy ra khi xóa tất cả.');
         }
     }
 };

@@ -8,8 +8,10 @@ export const CONFIG = {
   // Tiền tố API cho các endpoint dashboard
   API_PREFIX: "/api/v1/dashboard",
 
-  // Tự động chuyển sang mock data khi API lỗi
-  USE_MOCK: false,
+  // Tự động chuyển sang mock data nếu đã fallback
+  get USE_MOCK() {
+    return localStorage.getItem('IS_MOCK_MODE') === 'true';
+  },
 
   // Các khóa lưu trữ trong LocalStorage
   STORAGE_KEYS: {

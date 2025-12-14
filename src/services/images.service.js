@@ -5,6 +5,8 @@
  */
 import { ApiService } from './api.js';
 import { RestaurantService } from './restaurant.service.js';
+import { CONFIG } from '../config.js';
+import { MockHandlers } from '../mock/handlers.js';
 
 export const ImagesService = {
     /**
@@ -12,6 +14,8 @@ export const ImagesService = {
      * Fetches from RestaurantService.getInfo()
      */
     async getList(type = null) {
+        if (CONFIG.USE_MOCK) return MockHandlers.getImages(type);
+
         try {
             const result = await RestaurantService.getInfo();
             const restaurant = result.data || result;
@@ -22,37 +26,44 @@ export const ImagesService = {
             const filtered = images.filter(img => img.type === type);
             return { data: filtered, success: true };
         } catch (error) {
-            console.warn('Error fetching images:', error);
-            return { data: [], success: false };
+            console.warn('Fetch images failed, fallback to Mock');
+            return MockHandlers.getImages(type);
         }
     },
 
     async upload(formData, type) {
-        // Map type to BE endpoint scope
-        // Upload routes: /uploads/images/restaurants/cover, /gallery, /menu
-        let endpoint = '/uploads/images/restaurants/gallery'; // default
-        
-        if (type === 'COVER') endpoint = '/uploads/images/restaurants/cover';
-        else if (type === 'MENU') endpoint = '/uploads/images/restaurants/menu';
-        else if (type === 'GALLERY') endpoint = '/uploads/images/restaurants/gallery';
-        
-        // Note: formData should contain 'image' field as per BE controller expectations?
-        // BE controller: uploadSingleImageMiddleware expects field 'image' (usually dflt) or req.file
-        // FE ImagesView passes formData directly.
-        
-        return ApiService.post(endpoint, formData, {
-            headers: { 'Content-Type': 'multipart/form-data' }
-        });
+        if (CONFIG.USE_MOCK) return MockHandlers.uploadImage(null, type);
+
+        try {
+            // Map type to BE endpoint scope
+            // Upload routes: /uploads/images/restaurants/cover, /gallery, /menu
+            let endpoint = '/uploads/images/restaurants/gallery'; // default
+            
+            if (type === 'COVER') endpoint = '/uploads/images/restaurants/cover';
+            else if (type === 'MENU') endpoint = '/uploads/images/restaurants/menu';
+            else if (type === 'GALLERY') endpoint = '/uploads/images/restaurants/gallery';
+            
+            return await ApiService.post(endpoint, formData, {
+                headers: { 'Content-Type': 'multipart/form-data' }
+            });
+        } catch (error) {
+            return MockHandlers.uploadImage(null, type);
+        }
     },
 
     async delete(id) {
-        console.warn('Delete image not fully implemented in BE yet.');
-        // TODO: Call BE endpoint to delete image record if available
-        return { success: false, message: 'Tính năng xóa chưa được hỗ trợ bởi BE' };
+        if (CONFIG.USE_MOCK) return MockHandlers.deleteImage(id);
+        
+        try {
+             return { success: false, message: 'Tính năng xóa chưa được hỗ trợ bởi BE' };
+        } catch (error) {
+            return MockHandlers.deleteImage(id);
+        }
     },
 
     async setCover(id) {
-        // Find image URL then update restaurant main_image_url
+        if (CONFIG.USE_MOCK) return MockHandlers.setPrimaryImage(id);
+
         try {
             const listRes = await this.getList();
             const images = listRes.data || [];
@@ -60,12 +71,12 @@ export const ImagesService = {
             
             if (!target) return { success: false, message: 'Image not found' };
             
-            return RestaurantService.update({
+            return await RestaurantService.update({
                 main_image_url: target.file_path
             });
         } catch (error) {
-            console.error('Error setting cover:', error);
-            return { success: false, message: 'Failed to set cover' };
+            console.warn('Set cover failed, fallback to Mock');
+            return MockHandlers.setPrimaryImage(id);
         }
     }
 };

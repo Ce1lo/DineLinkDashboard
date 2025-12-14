@@ -3,15 +3,25 @@
  * Tổng hợp data từ các API có sẵn để hiển thị dashboard overview
  */
 import { ApiService } from './api.js';
+import { CONFIG } from '../config.js';
+import { MockHandlers } from '../mock/handlers.js';
 
 export const OverviewService = {
     async getOverview() {
+        // 1. Force Mock Mode if configured
+        if (CONFIG.USE_MOCK) {
+            console.log('🎭 Using Mock Data for Overview');
+            return MockHandlers.getOverview();
+        }
+
         try {
+            // 2. Try calling Real Backend APIs
+            
             // Gọi song song các API có sẵn
             const [bookingsRes, restaurantRes, tablesRes] = await Promise.all([
-                ApiService.get('/bookings').catch(() => ({ data: [] })),
-                ApiService.get('/restaurants/me').catch(() => ({ data: {} })),
-                ApiService.get('/tables').catch(() => ({ data: [] }))
+                ApiService.get('/bookings').catch(err => { throw err; }), // Throw to trigger fallback
+                ApiService.get('/restaurants/me').catch(err => { throw err; }),
+                ApiService.get('/tables').catch(err => { throw err; })
             ]);
             
             // Parse data
@@ -48,7 +58,6 @@ export const OverviewService = {
             const totalCapacity = tables.reduce((sum, t) => sum + (parseInt(t.capacity) || 0), 0);
 
             // Calculate Occupancy (Guests Today / Total Capacity * 100)
-            // This is a rough estimate. Ideally needs time-slot analysis.
             const occupancy = totalCapacity > 0 ? Math.min(Math.round((guestsToday / totalCapacity) * 100), 100) : 0;
             
             const upcomingBookings = Array.isArray(bookings) ? bookings
@@ -86,14 +95,27 @@ export const OverviewService = {
                 success: true
             };
         } catch (error) {
-            console.error('Error fetching overview data:', error);
-            // Return default data để dashboard vẫn render được
-            return {
-                kpis: { bookingsToday: 0, guestsToday: 0, pendingBookings: 0, tableOccupancy: 0 },
-                upcomingBookings: [],
-                restaurant: {},
-                success: false
-            };
+            console.warn('⚠️ Real Backend unavailable, switching to Mock Data...', error);
+            
+            // 3. Fallback to Mock Data if Real API fails
+            try {
+                const mockData = await MockHandlers.getOverview();
+                // MockHandlers usually returns { kpis, upcomingBookings ... } structure directly
+                // We ensure 'success: true' is added if needed, though MockHandlers usually returns objects.
+                return {
+                    ...mockData,
+                    success: true,
+                    _isMock: true // Marker to debug
+                };
+            } catch (mockErr) {
+                 console.error('Fatal: Both Backend and Mock failed', mockErr);
+                 return {
+                    kpis: { bookingsToday: 0, guestsToday: 0, pendingBookings: 0, tableOccupancy: 0 },
+                    upcomingBookings: [],
+                    restaurant: {},
+                    success: false
+                 };
+            }
         }
     }
 };

@@ -5,6 +5,7 @@
  */
 import { CONFIG } from '../config.js';
 import { ApiService } from './api.js';
+import { MockHandlers } from '../mock/handlers.js';
 
 export const AuthService = {
     /**
@@ -12,48 +13,30 @@ export const AuthService = {
      * BE Response format: { success, message, data: { account, restaurant, tokens: { accessToken, refreshToken } } }
      */
     async login(email, password) {
-        const response = await ApiService.post('/auth/login', { email, password });
-        console.log('Login response:', response); // Debug log
-        
-        // BE wrap response trong { success, data: {...} }
-        const resData = response.data || response;
-        const tokens = resData.tokens || {};
-        
-        if (tokens.accessToken || resData.accessToken || resData.token) {
-            // Lưu tokens
-            ApiService.saveTokens(
-                tokens.accessToken || resData.accessToken || resData.token,
-                tokens.refreshToken || resData.refreshToken
-            );
-            // Lưu user info (account từ BE)
-            const user = resData.account || resData.user;
-            if (user) {
-                // Thêm restaurant info vào user
-                user.restaurant = resData.restaurant;
-                localStorage.setItem(CONFIG.STORAGE_KEYS.USER, JSON.stringify(user));
-            }
-        }
-        
-        // Return format cho FE kiểm tra
-        const finalUser = resData.account || resData.user || {};
-        if (finalUser) {
-            // Map snake_case to camelCase for FE consistency
-            finalUser.name = finalUser.display_name || finalUser.full_name || finalUser.name;
-            finalUser.avatar = finalUser.avatar_url || finalUser.avatar;
-            // Ensure restaurant info is attached if available
-            if (resData.restaurant) {
-                finalUser.restaurant = resData.restaurant;
-            }
-            // Update storage with mapped user
-            localStorage.setItem(CONFIG.STORAGE_KEYS.USER, JSON.stringify(finalUser));
-        }
+        if (CONFIG.USE_MOCK) return this._processLoginResponse(await MockHandlers.login(email, password));
 
-        return {
-            ...resData,
-            token: tokens.accessToken || resData.accessToken || resData.token,
-            accessToken: tokens.accessToken || resData.accessToken,
-            user: finalUser
-        };
+        try {
+            const response = await ApiService.post('/auth/login', { email, password });
+            return this._processLoginResponse(response);
+        } catch (error) {
+            console.warn('Real API Login failed, attempting Mock Fallback...', error);
+            
+            // Debug: Check if it's a network error or 401
+            if (error.message && error.message.includes('401')) {
+                 console.warn('Backend is alive but credentials invalid. NOT falling back to Mock.');
+                 throw error; 
+            }
+            if (error.data && error.data.message === 'Incorrect email or password') {
+                 console.warn('Backend is alive but credentials invalid. NOT falling back to Mock.');
+                 throw error;
+            }
+
+            // Fallback to Mock only on Network Error or Server Error (5xx)
+            console.warn('Connection/Server Error detected. Switching to Mock Data.');
+            localStorage.setItem('IS_MOCK_MODE', 'true'); // Enable Sticky Mock Mode
+            const mockRes = await MockHandlers.login(email, password);
+            return this._processLoginResponse(mockRes);
+        }
     },
 
     /**
@@ -136,6 +119,7 @@ export const AuthService = {
      */
     logout() {
         ApiService.clearTokens();
+        localStorage.removeItem('IS_MOCK_MODE');
         window.location.pathname = '/login';
     },
 
@@ -170,5 +154,53 @@ export const AuthService = {
      */
     async refreshToken() {
         return ApiService.refreshAccessToken();
+    },
+    /**
+     * Helper: Xử lý response từ Login (cả Mock và Real)
+     */
+    _processLoginResponse(response) {
+        // Handle both standard response and Axios-style response.data if needed
+        // But our ApiService wrapper usually returns the JSON body directly.
+        const resData = response.data || response;
+        const tokens = resData.tokens || {};
+        
+        // Check for tokens in various places
+        const accessToken = tokens.accessToken || resData.accessToken || resData.token;
+        const refreshToken = tokens.refreshToken || resData.refreshToken;
+
+        if (accessToken) {
+            // Lưu tokens
+            ApiService.saveTokens(accessToken, refreshToken);
+            
+            // Lưu user info
+            const user = resData.account || resData.user;
+            if (user) {
+                // Thêm restaurant info vào user nếu có
+                if (resData.restaurant) {
+                    user.restaurant = resData.restaurant;
+                }
+                localStorage.setItem(CONFIG.STORAGE_KEYS.USER, JSON.stringify(user));
+            }
+        }
+        
+        // Return format cho FE kiểm tra (AuthView)
+        const finalUser = resData.account || resData.user || {};
+        if (finalUser) {
+            finalUser.name = finalUser.display_name || finalUser.full_name || finalUser.name;
+            finalUser.avatar = finalUser.avatar_url || finalUser.avatar;
+            if (resData.restaurant) {
+                finalUser.restaurant = resData.restaurant;
+            }
+            // Update storage again with formatted user
+            localStorage.setItem(CONFIG.STORAGE_KEYS.USER, JSON.stringify(finalUser));
+        }
+
+        return {
+            ...resData,
+            success: true, // Ensure success flag
+            token: accessToken,
+            accessToken: accessToken,
+            user: finalUser
+        };
     }
 };
