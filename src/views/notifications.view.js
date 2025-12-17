@@ -339,25 +339,22 @@ export const NotificationsView = {
             return;
         }
         
+        // Handle Booking types separately via Shared Component
+        if (type.startsWith('BOOKING_')) {
+             // Close notification modal first to avoid overlap/conflict if needed, 
+             // or just use the shared modal directly.
+             // Best UX: Close this, open shared.
+             window.closeModal('notificationDetailModal');
+             await BookingDetailModal.show(data.bookingId, App);
+             return;
+        }
+
         // Set loading state
         contentEl.innerHTML = `<div class="text-center py-4"><i class="fa-solid fa-spinner fa-spin text-2xl text-stone-400"></i></div>`;
         window.openModal('notificationDetailModal');
         
         try {
             switch (type) {
-                case 'BOOKING_CREATED':
-                case 'BOOKING_UPDATED':
-                case 'BOOKING_CONFIRMED':
-                case 'BOOKING_CANCELLED':
-                case 'BOOKING_CHECKED_IN':
-                case 'BOOKING_NO_SHOW':
-                case 'BOOKING_PAYMENT_SUCCESS':
-                case 'BOOKING_REFUND_SUCCESS':
-                case 'BOOKING_COMPLETED':
-                    if (titleEl) titleEl.textContent = 'Chi tiết đặt bàn';
-                    await this.renderBookingDetailContent(data.bookingId, contentEl, footerEl, App, Router);
-                    break;
-                    
                 case 'REVIEW_CREATED':
                     if (titleEl) titleEl.textContent = 'Chi tiết đánh giá';
                     await this.renderReviewDetailContent(data.reviewId, contentEl, footerEl, App);
@@ -379,122 +376,6 @@ export const NotificationsView = {
             footerEl.innerHTML = `<button class="btn btn-secondary" onclick="closeModal('notificationDetailModal')">Đóng</button>`;
         }
     },
-
-    /**
-     * Ensure notification modal exists, create if not
-     */
-    ensureNotificationModal() {
-        if (document.getElementById('notificationDetailModal')) return;
-        
-        const modalHtml = `
-            <div id="notificationDetailModal" class="hidden fixed inset-0 z-50 flex items-center justify-center">
-                <div class="modal-backdrop absolute inset-0 bg-black/50" onclick="closeModal('notificationDetailModal')"></div>
-                <div class="modal relative bg-white rounded-xl shadow-2xl" style="width: 500px; max-width: 90vw;">
-                    <div class="modal-header flex items-center justify-between p-4 border-b border-stone-200">
-                        <h3 id="notificationModalTitle" class="modal-title font-semibold text-lg">Chi tiết thông báo</h3>
-                        <button type="button" class="modal-close w-8 h-8 flex items-center justify-center rounded-lg hover:bg-stone-100 transition-colors" onclick="closeModal('notificationDetailModal')">
-                            <i class="fa-solid fa-xmark text-stone-500"></i>
-                        </button>
-                    </div>
-                    <div class="modal-body p-4" id="notificationDetailContent">
-                        <!-- Content injected here -->
-                    </div>
-                    <div class="modal-footer flex justify-end gap-2 p-4 border-t border-stone-200" id="notificationDetailFooter">
-                        <button class="btn btn-secondary" onclick="closeModal('notificationDetailModal')">Đóng</button>
-                    </div>
-                </div>
-            </div>
-        `;
-        document.body.insertAdjacentHTML('beforeend', modalHtml);
-    },
-
-    /**
- * Render booking detail content with action buttons
- */
-async renderBookingDetailContent(bookingId, contentEl, footerEl, App, Router) {
-    if (!bookingId) {
-        contentEl.innerHTML = `<p class="text-stone-500">Không tìm thấy thông tin đặt bàn</p>`;
-        footerEl.innerHTML = `<button class="btn btn-secondary" onclick="closeModal('notificationDetailModal')">Đóng</button>
-                              <button class="btn btn-primary" onclick="window.location.pathname='/bookings'">Xem danh sách</button>`;
-        return;
-    }
-    
-    try {
-        const booking = await BookingsService.getById(bookingId);
-        if (!booking) {
-            contentEl.innerHTML = `<p class="text-stone-500">Không tìm thấy thông tin đặt bàn</p>`;
-            footerEl.innerHTML = `<button class="btn btn-secondary" onclick="closeModal('notificationDetailModal')">Đóng</button>
-                                  <button class="btn btn-primary" onclick="window.location.pathname='/bookings'">Xem danh sách</button>`;
-            return;
-        }
-        
-        // Map API fields (snake_case) to display
-        const customerName = booking.customer_name || booking.customerName || (booking.user?.display_name) || 'N/A';
-        const customerPhone = booking.phone || booking.customerPhone || (booking.user?.phone) || 'N/A';
-        const guestCount = booking.people_count || booking.guests || 'N/A';
-        const bookingTime = booking.booking_time || booking.datetime;
-        const tableName = booking.table?.name || booking.tableName || 'Chưa gán';
-        const notes = booking.note || booking.notes || '';
-        const code = booking.code || `BK${String(booking.id).padStart(3, '0')}`;
-        
-        const statusMap = {
-            'PENDING': { label: 'Chờ xác nhận', class: 'badge-pending' },
-            'CONFIRMED': { label: 'Đã xác nhận', class: 'badge-confirmed' },
-            'CHECKED_IN': { label: 'Đã check-in', class: 'badge-checked-in' },
-            'COMPLETED': { label: 'Hoàn thành', class: 'badge-confirmed' },
-            'CANCELLED': { label: 'Đã hủy', class: 'badge-cancelled' },
-            'NO_SHOW': { label: 'Không đến', class: 'badge-no-show' }
-        };
-        const status = statusMap[booking.status] || { label: booking.status, class: 'badge-no-show' };
-        
-        contentEl.innerHTML = `
-            <div class="space-y-4">
-                <div class="flex items-center justify-between">
-                    <code class="bg-stone-100 px-3 py-1.5 rounded text-sm font-mono font-semibold">${code}</code>
-                    <span class="badge ${status.class}">${status.label}</span>
-                </div>
-                <div class="bg-stone-50 rounded-lg p-4">
-                    <h4 class="font-semibold text-stone-700 mb-3 flex items-center gap-2">
-                        <i class="fa-solid fa-user"></i> Thông tin khách hàng
-                    </h4>
-                    <div class="grid grid-cols-2 gap-3 text-sm">
-                        <div><span class="text-stone-500">Họ tên:</span><p class="font-medium text-stone-900">${customerName}</p></div>
-                        <div><span class="text-stone-500">Số điện thoại:</span><p class="font-medium text-stone-900">${customerPhone}</p></div>
-                    </div>
-                </div>
-                <div class="bg-stone-50 rounded-lg p-4">
-                    <h4 class="font-semibold text-stone-700 mb-3 flex items-center gap-2">
-                        <i class="fa-solid fa-calendar-check"></i> Thông tin đặt bàn
-                    </h4>
-                    <div class="grid grid-cols-2 gap-3 text-sm">
-                        <div><span class="text-stone-500">Thời gian:</span><p class="font-medium text-stone-900">${bookingTime ? new Date(bookingTime).toLocaleString('vi-VN') : 'N/A'}</p></div>
-                        <div><span class="text-stone-500">Số khách:</span><p class="font-medium text-stone-900">${guestCount} người</p></div>
-                        <div><span class="text-stone-500">Bàn:</span><p class="font-medium text-stone-900">${tableName}</p></div>
-                    </div>
-                </div>
-                ${notes ? `<div class="bg-yellow-50 rounded-lg p-4"><h4 class="font-semibold text-yellow-700 mb-2 flex items-center gap-2"><i class="fa-solid fa-note-sticky"></i> Ghi chú</h4><p class="text-sm text-yellow-800">${notes}</p></div>` : ''}
-            </div>
-        `;
-        
-        // Build action buttons based on status
-        let actions = `<button class="btn btn-secondary" onclick="closeModal('notificationDetailModal')">Đóng</button>`;
-        if (booking.status === 'PENDING') {
-            actions += `<button class="btn btn-success" data-action="modal-confirm-booking" data-id="${bookingId}"><i class="fa-solid fa-check"></i> Xác nhận</button>`;
-            actions += `<button class="btn btn-danger" data-action="modal-cancel-booking" data-id="${bookingId}"><i class="fa-solid fa-xmark"></i> Hủy</button>`;
-        } else if (booking.status === 'CONFIRMED') {
-            actions += `<button class="btn btn-primary" data-action="modal-checkin-booking" data-id="${bookingId}"><i class="fa-solid fa-door-open"></i> Check-in</button>`;
-        }
-        footerEl.innerHTML = actions;
-        
-        // Bind action handlers
-        this.bindModalBookingActions(App, Router);
-    } catch (error) {
-        console.error('Error loading booking:', error);
-        contentEl.innerHTML = `<p class="text-red-500">Lỗi khi tải thông tin đặt bàn</p>`;
-        footerEl.innerHTML = `<button class="btn btn-secondary" onclick="closeModal('notificationDetailModal')">Đóng</button>
-                              <button class="btn btn-primary" onclick="window.location.pathname='/bookings'">Xem danh sách</button>`;
-    }
-},
 
     /**
      * Render review detail content with actual review data and reply form

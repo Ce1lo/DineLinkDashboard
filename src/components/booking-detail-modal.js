@@ -26,7 +26,7 @@ export const BookingDetailModal = {
                             <i class="fa-solid fa-spinner fa-spin text-2xl text-stone-400"></i>
                         </div>
                     </div>
-                    <div class="modal-footer">
+                    <div class="modal-footer" id="bookingDetailFooter">
                         <button class="btn btn-secondary" onclick="closeModal('bookingDetailModal')">Đóng</button>
                     </div>
                 </div>
@@ -38,11 +38,13 @@ export const BookingDetailModal = {
     /**
      * Hiển thị chi tiết booking trong modal
      */
-    async show(bookingId) {
+    async show(bookingId, App) {
         this.ensureModal();
         
         const contentEl = document.getElementById('bookingDetailContent');
-        if (!contentEl) return;
+        const footerEl = document.getElementById('bookingDetailFooter');
+        
+        if (!contentEl || !footerEl) return;
         
         // Show loading
         contentEl.innerHTML = `
@@ -59,7 +61,7 @@ export const BookingDetailModal = {
             if (rawBooking) {
                 const booking = {
                     ...rawBooking,
-                    code: rawBooking.code || `B${rawBooking.id}`,
+                    code: rawBooking.code || `BK${String(rawBooking.id).padStart(3, '0')}`,
                     customerName: rawBooking.customer_name || rawBooking.customerName || (rawBooking.user ? rawBooking.user.display_name : 'Khách vãng lai'),
                     customerPhone: rawBooking.phone || rawBooking.customerPhone || (rawBooking.user ? rawBooking.user.phone : ''),
                     guests: rawBooking.people_count || rawBooking.guests || 0,
@@ -144,6 +146,24 @@ export const BookingDetailModal = {
                         ` : ''}
                     </div>
                 `;
+
+                 // Build action buttons
+                let actions = `<button class="btn btn-secondary" onclick="closeModal('bookingDetailModal')">Đóng</button>`;
+                
+                if (booking.status === 'PENDING') {
+                    actions += `<button class="btn btn-success" data-action="shared-modal-confirm" data-id="${bookingId}"><i class="fa-solid fa-check"></i> Xác nhận</button>`;
+                    actions += `<button class="btn btn-danger" data-action="shared-modal-cancel" data-id="${bookingId}"><i class="fa-solid fa-xmark"></i> Hủy</button>`;
+                } else if (booking.status === 'CONFIRMED') {
+                    actions += `<button class="btn btn-primary" data-action="shared-modal-checkin" data-id="${bookingId}"><i class="fa-solid fa-door-open"></i> Check-in</button>`;
+                }
+                
+                footerEl.innerHTML = actions;
+                
+                // Bind actions if App is provided
+                if (App) {
+                     this.bindActions(footerEl, App, 'bookingDetailModal');
+                }
+
             } else {
                 contentEl.innerHTML = `
                     <div class="text-center py-4 text-stone-500">
@@ -161,5 +181,50 @@ export const BookingDetailModal = {
                 </div>
             `;
         }
+    },
+
+    bindActions(container, App, modalId) {
+        container.querySelector('[data-action="shared-modal-confirm"]')?.addEventListener('click', async (e) => {
+            const bookingId = e.target.closest('[data-id]').dataset.id;
+            try {
+                const result = await BookingsService.confirm(bookingId);
+                if (result.success) {
+                    App.showSuccess('Đã xác nhận đặt bàn!');
+                    window.closeModal(modalId);
+                    App.reload();
+                }
+            } catch (error) {
+                App.showError('Có lỗi xảy ra. Vui lòng thử lại.');
+            }
+        });
+        
+        container.querySelector('[data-action="shared-modal-cancel"]')?.addEventListener('click', async (e) => {
+            const bookingId = e.target.closest('[data-id]').dataset.id;
+             if(!confirm('Chắc chắn hủy đơn này?')) return;
+            try {
+                const result = await BookingsService.cancel(bookingId);
+                if (result.success) {
+                    App.showSuccess('Đã hủy đặt bàn!');
+                    window.closeModal(modalId);
+                    App.reload();
+                }
+            } catch (error) {
+                App.showError('Có lỗi xảy ra. Vui lòng thử lại.');
+            }
+        });
+        
+        container.querySelector('[data-action="shared-modal-checkin"]')?.addEventListener('click', async (e) => {
+            const bookingId = e.target.closest('[data-id]').dataset.id;
+            try {
+                const result = await BookingsService.checkIn(bookingId);
+                if (result.success) {
+                    App.showSuccess('Đã check-in thành công!');
+                    window.closeModal(modalId);
+                    App.reload();
+                }
+            } catch (error) {
+                App.showError('Có lỗi xảy ra. Vui lòng thử lại.');
+            }
+        });
     }
 };

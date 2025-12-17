@@ -32,7 +32,7 @@ export const HeaderView = {
             }
 
             debounceTimer = setTimeout(() => {
-                this.handleSearch(query, searchResults);
+                this.handleSearch(query, searchResults, App);
             }, 300);
         });
 
@@ -51,7 +51,7 @@ export const HeaderView = {
         });
     },
 
-    async handleSearch(query, resultsContainer) {
+    async handleSearch(query, resultsContainer, App) {
         // Show loading
         resultsContainer.innerHTML = `
             <div class="p-4 text-center text-stone-500">
@@ -75,7 +75,7 @@ export const HeaderView = {
                 datetime: b.booking_time || b.created_at
             }));
 
-            this.renderResults(bookings, resultsContainer, query);
+            this.renderResults(bookings, resultsContainer, query, App);
 
         } catch (error) {
             console.error('Search error:', error);
@@ -87,7 +87,7 @@ export const HeaderView = {
         }
     },
 
-    renderResults(bookings, container, query) {
+    renderResults(bookings, container, query, App) {
         if (!bookings || bookings.length === 0) {
             container.innerHTML = `
                 <div class="p-4 text-center text-stone-500">
@@ -137,7 +137,7 @@ export const HeaderView = {
                 // Close results
                 container.classList.add('hidden');
                 // Open modal using Shared Component
-                BookingDetailModal.show(bookingId);
+                BookingDetailModal.show(bookingId, App);
             });
         });
     },
