@@ -62,7 +62,7 @@ export const HeaderView = {
 
         try {
             // Gọi API search
-            const result = await BookingsService.getList({ keyword: query });
+            const result = await BookingsService.getList({ q: query, limit: 5 });
             const data = result.data || {};
             let bookings = Array.isArray(data) ? data : (data.items || []);
 
