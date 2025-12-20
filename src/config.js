@@ -3,7 +3,7 @@
  */
 export const CONFIG = {
   // URL gốc của Backend API
-  API_BASE_URL: "http://localhost:8027",
+  API_BASE_URL: "https://pyramidally-unborrowed-cherie.ngrok-free.dev",
 
   // Tiền tố API cho các endpoint dashboard
   API_PREFIX: "/api/v1/dashboard",
@@ -11,7 +11,7 @@ export const CONFIG = {
   // Tự động chuyển sang mock data nếu đã fallback
   get USE_MOCK() {
     // Set to true for FE-only testing without backend
-    return true;
+    return false;
   },
 
   // Các khóa lưu trữ trong LocalStorage
