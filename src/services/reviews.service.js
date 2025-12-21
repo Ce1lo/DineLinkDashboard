@@ -1,22 +1,50 @@
 /**
- * Reviews Service - MOCK VERSION (ES6)
+ * Reviews Service - PRODUCTION VERSION (ES6)
  */
-import { MockHandlers } from '../mock/handlers.js';
+import { ApiService } from './api.js';
 
 export const ReviewsService = {
     async getList(params = {}) {
-        return MockHandlers.getReviews(params);
+        try {
+            const query = new URLSearchParams(params).toString();
+            const response = await ApiService.get(`/reviews${query ? '?' + query : ''}`);
+            return { data: response.data || response, success: true };
+        } catch (error) {
+            console.warn('Could not fetch reviews:', error);
+            return { data: [], success: false };
+        }
+    },
+
+    async getById(id) {
+        const response = await ApiService.get(`/reviews/${id}`);
+        return response.data || response;
     },
 
     async reply(id, reply) {
-        return MockHandlers.replyReview(id, reply);
+        // BE uses PATCH and expects 'comment' field, not 'reply'
+        const response = await ApiService.patch(`/reviews/${id}/reply`, { comment: reply });
+        return { success: true, ...response };
     },
 
     async hide(id) {
-        return MockHandlers.hideReview(id);
+        // BE might not have this endpoint yet
+        try {
+            const response = await ApiService.patch(`/reviews/${id}/hide`, {});
+            return { success: true, ...response };
+        } catch (error) {
+            console.warn('hide endpoint not available');
+            return { success: false, message: 'Endpoint not available' };
+        }
     },
 
     async show(id) {
-        return MockHandlers.showReview(id);
+        // BE might not have this endpoint yet
+        try {
+            const response = await ApiService.patch(`/reviews/${id}/show`, {});
+            return { success: true, ...response };
+        } catch (error) {
+            console.warn('show endpoint not available');
+            return { success: false, message: 'Endpoint not available' };
+        }
     }
 };

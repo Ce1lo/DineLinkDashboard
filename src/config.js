@@ -8,6 +8,9 @@ export const CONFIG = {
   // Tiền tố API cho các endpoint dashboard
   API_PREFIX: "/api/v1/dashboard",
 
+  // Tiền tố API cho các endpoint dùng chung
+  COMMON_PREFIX: "/api/v1/common",
+
   // Tự động chuyển sang mock data (Tự động cập nhật từ .env)
   get USE_MOCK() {
     // Set to true for FE-only testing without backend

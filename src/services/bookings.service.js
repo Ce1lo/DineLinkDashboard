@@ -1,35 +1,53 @@
 /**
- * Bookings Service - MOCK VERSION (ES6)
+ * Bookings Service - PRODUCTION VERSION (ES6)
  */
-import { MockHandlers } from '../mock/handlers.js';
+import { ApiService } from './api.js';
 
 export const BookingsService = {
     async getList(params = {}) {
-        return MockHandlers.getBookings(params);
+        const query = new URLSearchParams(params).toString();
+        const response = await ApiService.get(`/bookings${query ? '?' + query : ''}`);
+        // Handle BE response format
+        return { data: response.data || response, success: true };
     },
 
     async getById(id) {
-        const result = await MockHandlers.getBookings();
-        return result.data.find(b => b.id === parseInt(id));
+        const response = await ApiService.get(`/bookings/${id}`);
+        return response.data || response;
     },
 
     async confirm(id) {
-        return MockHandlers.confirmBooking(id);
+        // BE uses PATCH not POST
+        const response = await ApiService.patch(`/bookings/${id}/confirm`, {});
+        return { success: true, ...response };
     },
 
     async cancel(id) {
-        return MockHandlers.cancelBooking(id);
+        // BE uses PATCH not POST
+        const response = await ApiService.patch(`/bookings/${id}/cancel`, {});
+        return { success: true, ...response };
     },
 
     async assignTable(id, tableId) {
-        return MockHandlers.assignTable(id, tableId);
+        // This might not exist in BE yet
+        try {
+            const response = await ApiService.patch(`/bookings/${id}/assign-table`, { tableId });
+            return { success: true, ...response };
+        } catch (error) {
+            console.warn('assignTable endpoint not available');
+            return { success: false, message: 'Endpoint not available' };
+        }
     },
 
     async checkIn(id) {
-        return MockHandlers.checkInBooking(id);
+        // BE uses "complete" instead of "check-in"
+        const response = await ApiService.patch(`/bookings/${id}/complete`, {});
+        return { success: true, ...response };
     },
 
     async noShow(id) {
-        return MockHandlers.noShowBooking(id);
+        // BE uses PATCH not POST
+        const response = await ApiService.patch(`/bookings/${id}/no-show`, {});
+        return { success: true, ...response };
     }
 };

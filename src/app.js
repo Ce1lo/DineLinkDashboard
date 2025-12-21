@@ -215,9 +215,9 @@ const App = {
                         accountId: n.account_id || n.accountId
                     }));
                     
-                    // Fetch booking counts for sidebar badge
+                    // Fetch booking counts for sidebar badge (limit 10 to avoid BE validation error)
                     try {
-                        const bookingsResult = await BookingsService.getList({ limit: 1000 });
+                        const bookingsResult = await BookingsService.getList({ limit: 10 });
                         // BE data struct: { items: [...] }
                         const bookingsData = bookingsResult.data || {};
                         const bookings = Array.isArray(bookingsData) ? bookingsData : (bookingsData.items || []);
