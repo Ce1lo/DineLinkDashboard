@@ -32,29 +32,35 @@
     <div class="card">
         <div class="flex items-center justify-between p-4 border-b border-stone-100">
             <h3 class="font-semibold text-stone-900">Ảnh bìa nhà hàng</h3>
-            <button class="btn btn-primary btn-sm" data-action="uploadImage" data-type="COVER" onclick="openModal('uploadImageModal')">
+            {{#if isOwner}}
+            <button class="btn btn-primary btn-sm" data-action="uploadImage" data-type="COVER">
                 <i class="fa-solid fa-upload"></i>
                 Thay ảnh cover
             </button>
+            {{/if}}
         </div>
         <div class="p-6">
             {{#if cover.length}}
             <div class="relative rounded-xl overflow-hidden">
                 <img src="{{cover.[0].url}}" alt="Cover" class="w-full max-h-96 object-cover">
+                {{#if ../../isOwner}}
                 <div class="absolute bottom-4 right-4 flex gap-2">
                     <button class="btn btn-sm bg-white/80 backdrop-blur-sm" data-action="deleteImage" data-id="{{cover.[0].id}}">
                         <i class="fa-solid fa-trash"></i>
                     </button>
                 </div>
+                {{/if}}
             </div>
             {{else}}
             <div class="empty-state py-16 border-2 border-dashed border-stone-200 rounded-xl">
                 <i class="fa-solid fa-image"></i>
                 <p class="text-stone-500 mb-4">Chưa có ảnh cover</p>
-                <button class="btn btn-primary" data-action="uploadImage" data-type="COVER" onclick="openModal('uploadImageModal')">
+                {{#if isOwner}}
+                <button class="btn btn-primary" data-action="uploadImage" data-type="COVER">
                     <i class="fa-solid fa-upload"></i>
                     Upload ảnh cover
                 </button>
+                {{/if}}
             </div>
             {{/if}}
         </div>
@@ -66,10 +72,12 @@
     <div class="card">
         <div class="flex items-center justify-between p-4 border-b border-stone-100">
             <h3 class="font-semibold text-stone-900">Ảnh không gian nhà hàng</h3>
-            <button class="btn btn-primary btn-sm" data-action="uploadImage" data-type="GALLERY" onclick="openModal('uploadImageModal')">
+            {{#if isOwner}}
+            <button class="btn btn-primary btn-sm" data-action="uploadImage" data-type="GALLERY">
                 <i class="fa-solid fa-plus"></i>
                 Thêm ảnh
             </button>
+            {{/if}}
         </div>
         <div class="p-6">
             {{#if gallery.length}}
@@ -92,7 +100,7 @@
             <div class="empty-state py-16 border-2 border-dashed border-stone-200 rounded-xl">
                 <i class="fa-solid fa-images"></i>
                 <p class="text-stone-500 mb-4">Chưa có ảnh không gian</p>
-                <button class="btn btn-primary" data-action="uploadImage" data-type="GALLERY" onclick="openModal('uploadImageModal')">
+                <button class="btn btn-primary" data-action="uploadImage" data-type="GALLERY">
                     <i class="fa-solid fa-plus"></i>
                     Thêm ảnh đầu tiên
                 </button>
@@ -107,10 +115,12 @@
     <div class="card">
         <div class="flex items-center justify-between p-4 border-b border-stone-100">
             <h3 class="font-semibold text-stone-900">Ảnh menu</h3>
-            <button class="btn btn-primary btn-sm" data-action="uploadImage" data-type="MENU" onclick="openModal('uploadImageModal')">
+            {{#if isOwner}}
+            <button class="btn btn-primary btn-sm" data-action="uploadImage" data-type="MENU">
                 <i class="fa-solid fa-plus"></i>
                 Thêm ảnh menu
             </button>
+            {{/if}}
         </div>
         <div class="p-6">
             {{#if menu.length}}
@@ -130,7 +140,7 @@
             <div class="empty-state py-16 border-2 border-dashed border-stone-200 rounded-xl">
                 <i class="fa-solid fa-circle"></i>
                 <p class="text-stone-500 mb-4">Chưa có ảnh menu</p>
-                <button class="btn btn-primary" data-action="uploadImage" data-type="MENU" onclick="openModal('uploadImageModal')">
+                <button class="btn btn-primary" data-action="uploadImage" data-type="MENU">
                     <i class="fa-solid fa-plus"></i>
                     Upload ảnh menu
                 </button>

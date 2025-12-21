@@ -73,7 +73,7 @@
         </a>
         {{/if}}
         
-        {{#if (or (eq user.role 'OWNER') (eq user.role 'MANAGER'))}}
+        {{#if (or (eq user.role 'OWNER') (eq user.role 'MANAGER') (eq user.role 'STAFF'))}}
         <a href="/reviews" class="nav-item {{#if (eq currentRoute '/reviews')}}active{{/if}}" data-nav="/reviews">
             <i class="fa-solid fa-star w-5"></i>
             <span>Đánh giá</span>

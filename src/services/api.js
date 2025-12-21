@@ -68,9 +68,7 @@ export const ApiService = {
         }
         const token = this.getAccessToken();
         if (token) {
-            // Fix: Trộn "Bearer " nếu token đã có tiền tố này để tránh "Bearer Bearer"
-            const cleanToken = token.replace(/^Bearer\s+/i, '');
-            headers['Authorization'] = `Bearer ${cleanToken}`;
+            headers['Authorization'] = `Bearer ${token}`;
         }
         return headers;
     },
@@ -79,10 +77,6 @@ export const ApiService = {
      * Build full URL
      */
     buildUrl(endpoint) {
-        // Nếu endpoint là refresh hoặc logout thì dùng COMMON_PREFIX
-        if (endpoint.startsWith('/auth/refresh') || endpoint.startsWith('/auth/logout')) {
-            return `${CONFIG.API_BASE_URL}${CONFIG.COMMON_PREFIX}${endpoint}`;
-        }
         return `${CONFIG.API_BASE_URL}${CONFIG.API_PREFIX}${endpoint}`;
     },
 
@@ -97,7 +91,9 @@ export const ApiService = {
         }
 
         try {
-            const response = await fetch(this.buildUrl('/auth/refresh'), {
+            // Use COMMON_PREFIX for auth endpoints
+            const url = `${CONFIG.API_BASE_URL}${CONFIG.COMMON_PREFIX}/auth/refresh`;
+            const response = await fetch(url, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json'
@@ -109,12 +105,15 @@ export const ApiService = {
                 throw new Error('Token refresh failed');
             }
 
-            const data = await response.json();
+            const responseData = await response.json();
             
+            // API Response structure: { success: true, data: { accessToken, refreshToken } }
+            const tokens = responseData.data || responseData; 
+
             // Lưu tokens mới
-            this.saveTokens(data.accessToken, data.refreshToken);
+            this.saveTokens(tokens.accessToken, tokens.refreshToken);
             
-            return data.accessToken;
+            return tokens.accessToken;
         } catch (error) {
             // Refresh thất bại -> đăng xuất
             this.clearTokens();
@@ -178,7 +177,23 @@ export const ApiService = {
             }
             
             if (!response.ok) {
-                const errorData = await response.json().catch(() => ({}));
+                // Handle 413 specific
+                if (response.status === 413) {
+                    throw new Error('File quá lớn. Vui lòng chọn ảnh nhỏ hơn 5MB.');
+                }
+                
+                const contentType = response.headers.get('content-type');
+                let errorData = {};
+                
+                if (contentType && contentType.includes('application/json')) {
+                    errorData = await response.json().catch(() => ({}));
+                } else {
+                    // Handle HTML or text response (common for 500/404/413 from Nginx/Express)
+                    const text = await response.text();
+                    console.error('Non-JSON Error Response:', text);
+                    errorData = { message: 'Có lỗi xảy ra trên server (HTML Response)' };
+                }
+
                 const errorMessage = errorData.error?.message || errorData.message || `HTTP ${response.status}`;
                 const error = new Error(errorMessage);
                 error.data = errorData; // Attach full error data

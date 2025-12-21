@@ -15,6 +15,7 @@ import { NotificationsService } from './services/notifications.service.js';
 import { BookingsService } from './services/bookings.service.js';
 import { TablesService } from './services/tables.service.js';
 import { AccountsService } from './services/accounts.service.js';
+import { CONFIG } from './config.js';
 
 // View imports
 import { AuthView } from './views/auth.view.js';
@@ -161,6 +162,16 @@ const App = {
     async renderPage(pageName, data = {}, useMainLayout = false) {
         const layout = useMainLayout ? 'main' : 'auth';
         const user = AuthService.getStoredUser();
+        
+        // Normalize user avatar URL for sidebar
+        if (user) {
+            const avatarPath = user.avatar_url || user.avatar;
+            if (avatarPath && !avatarPath.startsWith('http')) {
+                user.avatar = `${CONFIG.API_BASE_URL}${avatarPath}`;
+            } else {
+                user.avatar = avatarPath;
+            }
+        }
         
         const pageTemplate = this.templates[pageName];
         if (!pageTemplate) {

@@ -3,6 +3,8 @@
  * Xử lý logic render và sự kiện cho trang Quản lý bàn
  */
 import { TablesService } from '../services/tables.service.js';
+import { AuthService } from '../services/auth.service.js';
+import { CONFIG } from '../config.js';
 
 export const TablesView = {
     /**
@@ -58,9 +60,13 @@ export const TablesView = {
             to: Math.min(offset + limit, total)
         };
         
+        // Pass isOwner flag to template for role-based UI
+        const isOwner = AuthService.isOwner();
+        
         await App.renderPage('tables', { 
             data: tables,
-            pagination
+            pagination,
+            isOwner
         }, true);
         
         this.bindEvents(App, Router);
@@ -98,20 +104,24 @@ export const TablesView = {
             });
         }
 
-        // Nút xóa bàn
-        document.querySelectorAll('[data-action="delete-table"]').forEach(btn => {
-            btn.addEventListener('click', async (e) => {
+        // Event Delegation: Nút xóa bàn
+        document.addEventListener('click', async (e) => {
+            const deleteBtn = e.target.closest('[data-action="delete-table"]');
+            console.log('[DEBUG] Click detected, deleteBtn:', deleteBtn);
+            if (deleteBtn) {
                 e.stopPropagation();
-                const tableId = btn.dataset.tableId;
+                const tableId = deleteBtn.dataset.tableId;
+                console.log('[DEBUG] Deleting table:', tableId);
                 await this.handleDeleteTable(tableId, App);
-            });
+            }
         });
 
-        // Nút mở modal sửa
-        document.querySelectorAll('[data-action="edit-table"]').forEach(btn => {
-            btn.addEventListener('click', (e) => {
+        // Event Delegation: Nút mở modal sửa
+        document.addEventListener('click', (e) => {
+            const editBtn = e.target.closest('[data-action="edit-table"]');
+            if (editBtn) {
                 e.stopPropagation();
-                const tableDataStr = btn.dataset.table;
+                const tableDataStr = editBtn.dataset.table;
                 if (tableDataStr) {
                     try {
                         const tableData = JSON.parse(tableDataStr);
@@ -121,7 +131,7 @@ export const TablesView = {
                         console.error('Error parsing table data:', err);
                     }
                 }
-            });
+            }
         });
 
         // Image upload handling
@@ -139,6 +149,30 @@ export const TablesView = {
             });
         }
 
+        // Event Delegation: Remove current view image button
+        document.addEventListener('click', (e) => {
+            const removeBtn = e.target.closest('[data-action="remove-view-image"]');
+            if (removeBtn) {
+                e.stopPropagation();
+                if (!confirm('Xóa ảnh này?')) return;
+                
+                // Clear preview
+                const preview = document.getElementById('viewImagePreview');
+                if (preview) preview.innerHTML = '';
+                
+                // Add hidden flag to signal deletion on save
+                let deleteInput = document.getElementById('deleteViewImageFlag');
+                if (!deleteInput) {
+                    deleteInput = document.createElement('input');
+                    deleteInput.type = 'hidden';
+                    deleteInput.id = 'deleteViewImageFlag';
+                    deleteInput.name = 'deleteViewImage';
+                    document.getElementById('tableForm')?.appendChild(deleteInput);
+                }
+                deleteInput.value = 'true';
+            }
+        });
+
         // Reset form when opening add modal
         const addBtn = document.querySelector('[data-action="addTable"]');
         if (addBtn) {
@@ -149,6 +183,12 @@ export const TablesView = {
                 document.getElementById('tableForm').reset();
                 const preview = document.getElementById('viewImagePreview');
                 if (preview) preview.innerHTML = '';
+                // Hide current image container (for edit mode)
+                const currentImgContainer = document.getElementById('currentViewImageContainer');
+                if (currentImgContainer) currentImgContainer.classList.add('hidden');
+                // Clear deletion flag if any
+                const deleteFlag = document.getElementById('deleteViewImageFlag');
+                if (deleteFlag) deleteFlag.remove();
             });
         }
     },
@@ -347,9 +387,13 @@ export const TablesView = {
             // Check both camelCase and snake_case for compatibility
             const existingImage = tableData.view_image_url || tableData.viewImage;
             if (existingImage) {
+                // Normalize URL: prepend API_BASE_URL for relative paths
+                const imageUrl = existingImage.startsWith('http') 
+                    ? existingImage 
+                    : `${CONFIG.API_BASE_URL}${existingImage}`;
                 preview.innerHTML = `
                 <div class="relative inline-block w-full">
-                    <img src="${existingImage}" alt="Current View" 
+                    <img src="${imageUrl}" alt="Current View" 
                          class="w-full h-32 object-cover rounded-lg border border-stone-200">
                     <button type="button" 
                             class="absolute top-2 right-2 bg-red-500 text-white w-6 h-6 rounded-full flex items-center justify-center hover:bg-red-600 transition-colors"
@@ -357,48 +401,6 @@ export const TablesView = {
                         <i class="fa-solid fa-trash text-xs"></i>
                     </button>
                 </div>`;
-                
-                // Add event to remove existing image (clear preview + set flag to nullify in backend)
-                // Note: Actual deletion needs API call or updating with null. 
-                // Simple approach: When removing, we can set a hidden input or just handle it in UI 
-                // and letting the user upload a new one. Or if they save with no image, we default to null?
-                // Better: Check 'remove-view-image' click
-                preview.querySelector('[data-action="remove-view-image"]')?.addEventListener('click', async () => {
-                    if(!confirm('Xóa ảnh này?')) return;
-                    
-                    try {
-                        // Call API to remove image immediately or mark for removal on save?
-                        // User request: "có thể xóa để thêm cái khác vào".
-                        // If we remove immediately, it's cleaner.
-                        // Assuming updateTable supports setting view_image_url: null
-                        // But wait, populateEditForm is sync.
-                        
-                        // Let's marking it visually removed. Actual removal happens on Save?
-                        // OR: We call updateTable right here? No, 'Save' button is improved.
-                        
-                        // Implementation: visual removal + clear file input + hidden flag? 
-                        // But wait, 'viewImage' input is for NEW file.
-                        // If we want to delete EXISTING image, we can just say `view_image_url: ''` in update payload.
-                        
-                        // Let's call update immediately for "Delete Image" action if convenient, 
-                        // OR (better UX) just clear the preview and add a specific flag to FormData logic.
-                        
-                        // Strategy: Visual clear.
-                        preview.innerHTML = '';
-                        // We need to tell handleEditTable that the image is removed.
-                        // We can add a hidden input `deleteImage` = true
-                        let deleteInput = document.getElementById('deleteViewImageFlag');
-                        if (!deleteInput) {
-                            deleteInput = document.createElement('input');
-                            deleteInput.type = 'hidden';
-                            deleteInput.id = 'deleteViewImageFlag';
-                            deleteInput.name = 'deleteViewImage';
-                            document.getElementById('tableForm').appendChild(deleteInput);
-                        }
-                        deleteInput.value = 'true';
-                        
-                    } catch(e) { console.error(e); }
-                });
             }
         }
     }

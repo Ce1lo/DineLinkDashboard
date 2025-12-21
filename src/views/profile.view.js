@@ -4,6 +4,7 @@
  */
 import { ProfileService } from '../services/profile.service.js';
 import { AuthService } from '../services/auth.service.js';
+import { CONFIG } from '../config.js';
 
 export const ProfileView = {
     async render(App) {
@@ -106,11 +107,16 @@ export const ProfileView = {
             const result = await ProfileService.uploadAvatar(formData);
             if (result.success) {
                 App.showSuccess('Cập nhật ảnh đại diện thành công!');
-                const avatarImg = document.getElementById('avatarPreview');
-                if (avatarImg) {
-                    avatarImg.src = result.avatarUrl || result.data?.avatarUrl;
+                const avatarPath = result.data?.path || result.data?.url || result.avatarUrl;
+                if (avatarPath) {
+                    // Normalize URL: prepend API_BASE_URL for relative paths
+                    const avatarUrl = avatarPath.startsWith('http') 
+                        ? avatarPath 
+                        : `${CONFIG.API_BASE_URL}${avatarPath}`;
+                    const avatarImg = document.getElementById('avatarPreview');
+                    if (avatarImg) avatarImg.src = avatarUrl;
+                    AuthService.updateStoredUser({ avatar_url: avatarPath });
                 }
-                AuthService.updateStoredUser({ avatar: result.data.avatarUrl });
             }
         } catch (error) {
             App.showError('Upload ảnh thất bại. Vui lòng thử lại.');

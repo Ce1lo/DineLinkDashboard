@@ -6,10 +6,12 @@
         <h1 class="text-2xl font-bold text-stone-900">Quản lý bàn</h1>
         <p class="text-stone-500">Cấu hình bàn và sơ đồ nhà hàng</p>
     </div>
+    {{#if isOwner}}
     <button class="btn btn-primary" data-action="addTable" onclick="openModal('tableFormModal')">
         <i class="fa-solid fa-plus"></i>
         Thêm bàn mới
     </button>
+    {{/if}}
 </div>
 
 <!-- Tables Grid -->
@@ -48,12 +50,7 @@
             {{/if}}
         </div>
         
-        <!-- View Image -->
-        {{#if view_image_url}}
-        <div class="mb-4 rounded-lg overflow-hidden">
-            <img src="{{view_image_url}}" alt="View" class="w-full h-24 object-cover">
-        </div>
-        {{/if}}
+        <!-- View Image removed from card - only shows in edit modal -->
         
         <!-- Status Badge -->
         <div class="flex items-center justify-between">
@@ -64,6 +61,7 @@
             {{/if}}
             
             <!-- Actions -->
+            {{#if ../isOwner}}
             <div class="flex items-center gap-1">
                 <button class="btn btn-icon btn-secondary" 
                         data-action="edit-table" data-table-id="{{id}}" data-table='{{json this}}'
@@ -76,6 +74,7 @@
                     <i class="fa-solid fa-trash"></i>
                 </button>
             </div>
+            {{/if}}
         </div>
     </div>
     {{else}}
@@ -83,11 +82,13 @@
     <div class="col-span-full">
         <div class="empty-state py-12">
             <i class="fa-solid fa-table-cells"></i>
-            <p class="text-stone-500 mb-4">Chưa có bàn nào. Hãy thêm bàn mới!</p>
+            <p class="text-stone-500 mb-4">Chưa có bàn nào.{{#if ../isOwner}} Hãy thêm bàn mới!{{/if}}</p>
+            {{#if ../isOwner}}
             <button class="btn btn-primary" data-action="addTable" onclick="openModal('tableFormModal')">
                 <i class="fa-solid fa-plus"></i>
                 Thêm bàn đầu tiên
             </button>
+            {{/if}}
         </div>
     </div>
     {{/each}}
@@ -170,6 +171,16 @@
                         <input type="file" class="hidden" id="tableViewImage" name="viewImage" accept="image/*">
                     </div>
                     <div id="viewImagePreview" class="mt-2"></div>
+                    <!-- Container for existing view image (when editing) -->
+                    <div id="currentViewImageContainer" class="mt-2 hidden">
+                        <label class="form-label text-sm">Ảnh hiện tại:</label>
+                        <div class="relative inline-block w-full">
+                            <img id="currentViewImage" src="" alt="Current View" class="w-full h-32 object-cover rounded-lg border border-stone-200">
+                            <button type="button" id="removeCurrentViewImage" class="absolute top-2 right-2 bg-red-500 text-white w-6 h-6 rounded-full flex items-center justify-center hover:bg-red-600 transition-colors">
+                                <i class="fa-solid fa-xmark text-xs"></i>
+                            </button>
+                        </div>
+                    </div>
                 </div>
                 
                 <div class="form-group">

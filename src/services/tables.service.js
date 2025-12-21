@@ -33,8 +33,25 @@ export const TablesService = {
         return { success: true, ...response };
     },
 
-    async uploadViewImage(id, file, description = '') {
-        return ApiService.upload(`/tables/${id}/view-image`, file, { description });
+    async uploadViewImage(tableId, file) {
+        // API docs: POST /api/v1/dashboard/uploads/images/tables/view?table_id=X
+        // Field name: 'file'
+        const formData = new FormData();
+        formData.append('file', file);
+        const response = await ApiService.post(`/uploads/images/tables/view?table_id=${tableId}`, formData);
+        
+        // Step 2: Update table record with the uploaded image path
+        // Wrapped in try-catch to not break flow if PATCH fails
+        if (response.success && response.data?.path) {
+            try {
+                await this.update(tableId, { view_image_url: response.data.path });
+            } catch (updateError) {
+                console.warn('Failed to update table with image path:', updateError.message);
+                // Still return success since file was uploaded
+            }
+        }
+        
+        return response;
     },
 
     /**

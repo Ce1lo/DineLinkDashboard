@@ -4,6 +4,7 @@
  */
 import { CONFIG } from '../config.js';
 import { AuthService } from '../services/auth.service.js';
+import { ApiService } from '../services/api.js';
 
 export const AuthView = {
     /**
@@ -331,15 +332,16 @@ export const AuthView = {
             const result = await AuthService.registerOwner(data);
             
             if (result.success) {
-                App.showSuccess(result.message || 'Đăng ký thành công!');
-                if (result.token) {
-                    setTimeout(() => { window.location.pathname = '/dashboard'; }, 1500);
-                } else {
-                    setTimeout(() => { window.location.pathname = '/login'; }, 2000);
-                }
+                App.showSuccess(result.message || 'Đăng ký thành công! Vui lòng đăng nhập.');
+                ApiService.clearTokens();
+                setTimeout(() => { window.location.pathname = '/login'; }, 1500);
+                return; // Stop execution here
+            } else {
+                App.showError(result.message || 'Đăng ký thất bại.');
             }
         } catch (error) {
-            App.showError('Đăng ký thất bại. Vui lòng thử lại.');
+            console.error('[DEBUG] registerOwner error:', error);
+            App.showError(error.message || 'Đăng ký thất bại. Vui lòng thử lại.');
         } finally {
             App.hideLoading(form.querySelector('button[type="submit"]'));
         }
