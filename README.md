@@ -18,7 +18,27 @@
 - **Tooling**: live-server (Dev server), Lucide Icons
 - **Kiến trúc**: Service-View pattern
 
-## 📁 Cấu trúc thư mục
+## � Hướng dẫn cài đặt (Getting Started)
+
+Nếu bạn vừa clone dự án này về máy, hãy thực hiện các bước sau để chạy:
+
+1.  **Cài đặt NodeJS**: Đảm bảo máy đã cài NodeJS (khuyên dùng bản LTS).
+2.  **Cài đặt thư viện**:
+    ```bash
+    npm install
+    ```
+3.  **Thiết lập môi trường**:
+    - Copy file `.env.example` thành file mới tên là `.env`.
+    - Mở file `.env` và cập nhật `API_BASE_URL` trỏ về link Backend của bạn.
+    ```bash
+    cp .env.example .env  # Hoặc copy tay trên Windows
+    ```
+4.  **Chạy ứng dụng**:
+    ```bash
+    npm run dev
+    ```
+
+## �📁 Cấu trúc thư mục
 
 | Thư mục                                     | Chức năng                                             |
 | :------------------------------------------ | :---------------------------------------------------- |
