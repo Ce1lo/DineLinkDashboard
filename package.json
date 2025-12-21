@@ -3,7 +3,7 @@
   "version": "1.0.0",
   "description": "Restaurant Dashboard SPA with Handlebars",
   "scripts": {
-    "dev": "node scripts/toggle-mock.js sync && live-server --port=3000 --entry-file=index.html",
+    "dev": "node scripts/toggle-mock.js sync && live-server --port=3000 --host=localhost --entry-file=index.html",
     "sync": "node scripts/toggle-mock.js sync",
     "mock": "node scripts/toggle-mock.js mock && npm run dev",
     "prod": "node scripts/toggle-mock.js prod && npm run dev",
