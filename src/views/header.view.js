@@ -60,8 +60,8 @@ export const HeaderView = {
         resultsContainer.classList.remove('hidden');
 
         try {
-            // Gọi API search
-            const result = await BookingsService.getList({ q: query, limit: 5 });
+            // Gọi API search - dùng endpoint /bookings/search?q=
+            const result = await BookingsService.search(query, 5);
             const data = result.data || {};
             let bookings = Array.isArray(data) ? data : (data.items || []);
 

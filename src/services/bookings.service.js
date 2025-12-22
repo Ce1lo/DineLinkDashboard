@@ -11,6 +11,16 @@ export const BookingsService = {
         return { data: response.data || response, success: true };
     },
 
+    /**
+     * Search bookings by keyword (customer name, phone, booking code)
+     * API: GET /bookings/search?q=
+     */
+    async search(query, limit = 5) {
+        const params = new URLSearchParams({ q: query, limit }).toString();
+        const response = await ApiService.get(`/bookings/search?${params}`);
+        return { data: response.data || response, success: true };
+    },
+
     async getById(id) {
         try {
             const response = await ApiService.get(`/bookings/${id}`);

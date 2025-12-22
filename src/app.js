@@ -221,6 +221,9 @@ const App = {
                     // Map API fields (snake_case) to template fields (camelCase)
                     // Handle target_type/target_id like notifications view
                     sidebarData.recentNotifications = notificationsList.slice(0, 5).map(n => {
+                        // Debug: Log raw notification to see what fields backend returns
+                        console.log('🔔 [Raw Notification]', n);
+                        
                         // Determine related IDs based on target_type
                         let bookingId = null, reviewId = null, accountId = null;
                         
@@ -372,6 +375,16 @@ const App = {
                 const bookingId = headerNotifItem.dataset.bookingId;
                 const reviewId = headerNotifItem.dataset.reviewId;
                 const accountId = headerNotifItem.dataset.accountId;
+                
+                // Debug log to trace notification data
+                console.log('🔔 [Header Notification Click]', {
+                    type,
+                    notificationId,
+                    bookingId,
+                    reviewId,
+                    accountId,
+                    rawDataset: headerNotifItem.dataset
+                });
                 
                 // Use NotificationsView's modal function
                 await NotificationsView.showNotificationDetailModal(

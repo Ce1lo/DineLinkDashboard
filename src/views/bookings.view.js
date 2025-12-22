@@ -18,7 +18,13 @@ export const BookingsView = {
         if (!params.limit) params.limit = 10;
         if (!params.offset) params.offset = 0;
 
-        const result = await BookingsService.getList(params);
+        let result;
+        // Use search endpoint if q param is present
+        if (params.q && params.q.trim()) {
+            result = await BookingsService.search(params.q, params.limit);
+        } else {
+            result = await BookingsService.getList(params);
+        }
         
         // Handle new response structure with pagination
         const responseData = result.data || {};
