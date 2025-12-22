@@ -62,7 +62,10 @@ export const ApiService = {
      * Tạo headers cho request
      */
     getHeaders(isFormData = false) {
-        const headers = {};
+        const headers = {
+            // Skip ngrok browser warning page
+            'ngrok-skip-browser-warning': '69420'
+        };
         if (!isFormData) {
             headers['Content-Type'] = 'application/json';
         }
