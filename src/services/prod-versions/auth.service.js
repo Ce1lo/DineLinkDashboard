@@ -21,10 +21,9 @@ export const AuthService = {
         
         if (tokens.accessToken || resData.accessToken || resData.token) {
             // Lưu tokens
-            ApiService.saveTokens(
-                tokens.accessToken || resData.accessToken || resData.token,
-                tokens.refreshToken || resData.refreshToken
-            );
+            const accessToSave = tokens.accessToken || resData.accessToken || resData.token;
+            const refreshToSave = tokens.refreshToken || resData.refreshToken;
+            ApiService.saveTokens(accessToSave, refreshToSave);
             // Lưu user info (account từ BE)
             const user = resData.account || resData.user;
             if (user) {
@@ -173,5 +172,21 @@ export const AuthService = {
      */
     async refreshToken() {
         return ApiService.refreshAccessToken();
+    },
+
+    /**
+     * Check if current user is an Owner
+     */
+    isOwner() {
+        const user = this.getStoredUser();
+        return user && user.role === 'OWNER';
+    },
+
+    /**
+     * Check if current user is Staff
+     */
+    isStaff() {
+        const user = this.getStoredUser();
+        return user && user.role === 'STAFF';
     }
 };
