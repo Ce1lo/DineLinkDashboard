@@ -29,7 +29,7 @@
                 <option value="PENDING">Chờ xác nhận</option>
                 <option value="CONFIRMED">Đã xác nhận</option>
                 <option value="CANCELLED">Đã huỷ</option>
-                <option value="CHECKED_IN">Đã check-in</option>
+                <option value="COMPLETED">Đã check-in</option>
                 <option value="NO_SHOW">Không đến</option>
             </select>
         </div>
@@ -122,6 +122,8 @@
                         <span class="badge badge-confirmed">Đã xác nhận</span>
                         {{else if (eq status 'CHECKED_IN')}}
                         <span class="badge badge-checked-in">Đã check-in</span>
+                        {{else if (eq status 'COMPLETED')}}
+                        <span class="badge badge-checked-in">Đã hoàn thành</span>
                         {{else if (eq status 'CANCELLED')}}
                         <span class="badge badge-cancelled">Đã hủy</span>
                         {{else if (eq status 'NO_SHOW')}}

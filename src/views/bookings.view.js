@@ -58,7 +58,7 @@ export const BookingsView = {
             customerPhone: b.phone || b.user?.phone,
             guests: b.people_count,
             datetime: b.booking_time,
-            tableName: b.table ? b.table.name : null,
+            tableName: b.table?.name || b.table_name || null,
             tableId: b.table_id,
             status: b.status,
             deposit: b.deposit_amount
@@ -319,6 +319,7 @@ export const BookingsView = {
                 'PENDING': { label: 'Chờ xác nhận', class: 'badge-pending' },
                 'CONFIRMED': { label: 'Đã xác nhận', class: 'badge-confirmed' },
                 'CHECKED_IN': { label: 'Đã check-in', class: 'badge-checked-in' },
+                'COMPLETED': { label: 'Đã hoàn thành', class: 'badge-checked-in' },
                 'CANCELLED': { label: 'Đã hủy', class: 'badge-cancelled' },
                 'NO_SHOW': { label: 'Không đến', class: 'badge-no-show' }
             };
