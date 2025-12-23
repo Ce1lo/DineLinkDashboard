@@ -11,6 +11,13 @@ export const RestaurantService = {
     },
 
     async update(data) {
+        // Helper: normalize time to HH:mm format (strip seconds)
+        const normalizeTime = (time) => {
+            if (!time) return undefined;
+            // If format is HH:mm:ss, take only HH:mm
+            return time.length > 5 ? time.substring(0, 5) : time;
+        };
+
         // Transform FE field names to match BE format
         const payload = {
             name: data.name,
@@ -18,8 +25,8 @@ export const RestaurantService = {
             phone: data.phone,
             description: data.description,
             tags: data.tags,
-            open_time: data.open_time,
-            close_time: data.close_time,
+            open_time: normalizeTime(data.open_time),
+            close_time: normalizeTime(data.close_time),
             require_deposit: data.requireDeposit === 'on' || data.requireDeposit === true,
             default_deposit_amount: data.defaultDeposit ? parseInt(data.defaultDeposit) : undefined
         };
