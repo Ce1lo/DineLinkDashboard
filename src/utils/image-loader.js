@@ -46,3 +46,30 @@ export async function loadImageWithNgrokHeader(url) {
 export async function loadImagesWithNgrokHeader(urls) {
     return Promise.all(urls.map(url => loadImageWithNgrokHeader(url)));
 }
+
+/**
+ * Fix all images on the page that have ngrok URLs
+ * Replaces img src with blob URLs fetched with ngrok header
+ * Call after page render to fix avatar and other images
+ */
+export async function fixNgrokImages() {
+    // Find all images that may need ngrok header
+    const images = document.querySelectorAll('img[src*="ngrok"], img[src*="pyramidally"]');
+    
+    const fixPromises = Array.from(images).map(async (img) => {
+        if (img.dataset.ngrokFixed) return; // Already fixed
+        
+        const originalSrc = img.src;
+        try {
+            const blobUrl = await loadImageWithNgrokHeader(originalSrc);
+            if (blobUrl !== originalSrc) {
+                img.src = blobUrl;
+                img.dataset.ngrokFixed = 'true';
+            }
+        } catch (e) {
+            console.warn('Failed to fix image:', originalSrc);
+        }
+    });
+    
+    await Promise.all(fixPromises);
+}
