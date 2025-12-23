@@ -59,6 +59,12 @@ export const OverviewService = {
                 .sort((a, b) => new Date(a.booking_time || a.booking_date) - new Date(b.booking_time || b.booking_date))
                 .slice(0, 5) : [];
             
+            // Create lookup map: table_id -> table_name
+            const tableMap = {};
+            tables.forEach(t => {
+                tableMap[t.id] = t.name;
+            });
+
             // Format upcoming bookings for display
             const formattedUpcoming = upcomingBookings.map(b => {
                 const date = new Date(b.booking_time || b.booking_date || b.date);
@@ -69,7 +75,8 @@ export const OverviewService = {
                     customerName: b.customer_name || b.user?.display_name || 'Khách vãng lai',
                     customerPhone: b.phone || b.customer_phone || '',
                     guests: b.people_count || b.guest_count || 0,
-                    table: b.table?.name || b.table_name || null,
+                    // Lookup table name from tableMap using table_id
+                    table: b.table?.name || b.table_name || (b.table_id ? tableMap[b.table_id] : null),
                     status: b.status
                 };
             });
