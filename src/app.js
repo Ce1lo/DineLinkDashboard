@@ -7,6 +7,7 @@
 // Core imports
 import { registerHandlebarsHelpers } from './utils/helpers.js';
 import { Router } from './router.js';
+import { fixNgrokImages } from './utils/image-loader.js';
 
 // Service imports
 import { AuthService } from './services/auth.service.js';
@@ -298,8 +299,12 @@ const App = {
             this.container.innerHTML = layoutTemplate(layoutData);
             // Initialize Header Search after rendering main layout
             HeaderView.init(this, Router);
+            // Fix images with ngrok URLs (avatars, etc.)
+            await fixNgrokImages();
         } else {
             this.container.innerHTML = pageContent;
+            // Fix images with ngrok URLs for auth pages too
+            await fixNgrokImages();
         }
     },
 
