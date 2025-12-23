@@ -5,6 +5,7 @@
 import { ImagesService } from '../services/images.service.js';
 import { AuthService } from '../services/auth.service.js';
 import { CONFIG } from '../config.js';
+import { loadImageWithNgrokHeader } from '../utils/image-loader.js';
 
 export const ImagesView = {
     async render(App) {
@@ -17,21 +18,24 @@ export const ImagesView = {
         // Pass isOwner flag to template for role-based UI
         const isOwner = AuthService.isOwner();
         
-        // Helper to normalize image URLs
-        const normalizeImages = (images) => {
+        // Helper to normalize image URLs with ngrok header
+        const normalizeImages = async (images) => {
             if (!images || !Array.isArray(images)) return [];
-            return images.map(img => ({
-                ...img,
-                url: img.file_path && img.file_path.startsWith('http') 
-                     ? img.file_path 
-                     : `${CONFIG.API_BASE_URL}${img.file_path}`
+            return Promise.all(images.map(async img => {
+                const baseUrl = img.file_path && img.file_path.startsWith('http') 
+                    ? img.file_path 
+                    : `${CONFIG.API_BASE_URL}${img.file_path}`;
+                return {
+                    ...img,
+                    url: await loadImageWithNgrokHeader(baseUrl)
+                };
             }));
         };
 
         const normalizedData = { 
-            cover: normalizeImages(cover.data), 
-            gallery: normalizeImages(gallery.data), 
-            menu: normalizeImages(menu.data),
+            cover: await normalizeImages(cover.data), 
+            gallery: await normalizeImages(gallery.data), 
+            menu: await normalizeImages(menu.data),
             isOwner
         };
 
