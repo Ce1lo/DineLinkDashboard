@@ -256,7 +256,9 @@ export const BookingsView = {
                 App.reload();
             }
         } catch (error) {
-            App.showError('Có lỗi xảy ra. Vui lòng thử lại.');
+            // Show BE error message if available (e.g. "Chỉ có thể đánh dấu NO_SHOW sau 15 phút")
+            const errorMessage = error.message || error.data?.error?.message || 'Có lỗi xảy ra. Vui lòng thử lại.';
+            App.showError(errorMessage);
         }
     },
 

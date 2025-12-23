@@ -8,7 +8,7 @@ export const NotificationsService = {
         try {
             const query = new URLSearchParams(params).toString();
             // console.log('📢 [Notifications] Fetching:', `/notifications${query ? '?' + query : ''}`);
-            // const response = await ApiService.get(`/notifications${query ? '?' + query : ''}`);
+            const response = await ApiService.get(`/notifications${query ? '?' + query : ''}`);
             // console.log('📢 [Notifications] Response:', response);
             
             // BE returns: { success: true, data: { items: [...], pagination: {...} } }
