@@ -8,7 +8,9 @@
         <div class="flex items-center gap-3 mb-4">
             <img src="{{#if user.avatar}}{{user.avatar}}{{else}}https://i.pravatar.cc/80?img=12{{/if}}" 
                  alt="Avatar" 
-                 class="w-14 h-14 rounded-full object-cover border-2 border-primary-200">
+                 class="w-14 h-14 rounded-full object-cover border-2 border-primary-200 sidebar-avatar"
+                 data-avatar-url="{{user.avatar}}"
+                 onerror="this.src='https://i.pravatar.cc/80?img=12'">
             <div class="flex-1 min-w-0">
                 <h4 class="font-semibold text-stone-900 truncate">{{user.name}}</h4>
                 <p class="text-sm text-stone-500">{{user.role}}</p>

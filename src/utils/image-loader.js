@@ -53,8 +53,9 @@ export async function loadImagesWithNgrokHeader(urls) {
  * Call after page render to fix avatar and other images
  */
 export async function fixNgrokImages() {
-    // Find all images that may need ngrok header
-    const images = document.querySelectorAll('img[src*="ngrok"], img[src*="pyramidally"]');
+    // Find all images that may need ngrok header:
+    // - ngrok URLs, /uploads/ paths, sidebar-avatar class
+    const images = document.querySelectorAll('img[src*=\"ngrok\"], img[src*=\"pyramidally\"], img[src*=\"/uploads/\"], img.sidebar-avatar');
     
     const fixPromises = Array.from(images).map(async (img) => {
         if (img.dataset.ngrokFixed) return; // Already fixed
