@@ -48,5 +48,10 @@ export const NotificationsService = {
         // BE uses PATCH not POST
         const response = await ApiService.patch('/notifications/read-all', {});
         return { success: true, ...response };
+    },
+
+    async delete(id) {
+        const response = await ApiService.delete(`/notifications/${id}`);
+        return { success: true, ...response };
     }
 };

@@ -381,6 +381,47 @@ export const NotificationsView = {
     },
 
     /**
+     * Handle delete single notification
+     */
+    async handleDelete(id, App) {
+        if (!confirm('Bạn có chắc muốn xóa thông báo này?')) return;
+        
+        try {
+            const result = await NotificationsService.delete(id);
+            if (result.success) {
+                App.showSuccess('Đã xóa thông báo');
+                // Remove from UI optimistically
+                const item = document.querySelector(`[data-notification-id="${id}"]`);
+                if (item) {
+                    item.style.transition = 'opacity 0.3s, transform 0.3s';
+                    item.style.opacity = '0';
+                    item.style.transform = 'translateX(20px)';
+                    setTimeout(() => item.remove(), 300);
+                }
+            } else {
+                App.showError('Xóa thông báo thất bại');
+            }
+        } catch (error) {
+            console.error('Delete notification error:', error);
+            App.showError('Có lỗi xảy ra khi xóa thông báo');
+        }
+    },
+
+    /**
+     * Handle delete all notifications
+     */
+    async handleDeleteAll(App) {
+        try {
+            // Note: API might need a bulk delete endpoint
+            // For now, just reload the page
+            App.showWarning('Chức năng xóa tất cả đang được phát triển');
+            // App.reload();
+        } catch (error) {
+            App.showError('Có lỗi xảy ra');
+        }
+    },
+
+    /**
      * Ensure notification modal exists in DOM
      */
     ensureNotificationModal() {
